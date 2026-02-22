@@ -31,7 +31,7 @@ jobs:
         working-directory: app
 
       - name: Build
-        run: npx ng build --configuration production --base-href /${{ github.event.repository.name }}/
+        run: npx ng build --configuration production --base-href /
         working-directory: app
 
       - uses: actions/upload-pages-artifact@v3
