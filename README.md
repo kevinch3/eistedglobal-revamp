@@ -57,13 +57,18 @@ If the imported data has no current-year registrations, the migration backfills 
 
 ## API configuration (`api/.env`)
 
-Create `api/.env` with:
+Copy `api/.env.example` to `api/.env` and fill in the values:
 ```
 PORT=3000
 JWT_SECRET=change_me_in_production
+JWT_EXPIRES_IN=8h
+DB_PATH=./data/eistedglobal.db
+CORS_ORIGIN=http://localhost:4200
 ```
 
-`PORT` defaults to `3000` if omitted. `JWT_SECRET` must be set to a strong random value in production.
+- `PORT` — defaults to `3000` if omitted.
+- `JWT_SECRET` — must be a long random string in production.
+- `CORS_ORIGIN` — must match the URL of the Angular app. Set to `http://localhost:4200` for local dev; update to your hosted frontend URL in production.
 
 ## Build
 
