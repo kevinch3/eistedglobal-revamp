@@ -17,26 +17,26 @@ export const routes: Routes = [
         loadComponent: () => import('./features/dashboard/dashboard.component').then((m) => m.DashboardComponent),
       },
       {
-        path: 'personas',
-        loadComponent: () => import('./features/personas/personas.component').then((m) => m.PersonasComponent),
+        path: 'participants',
+        loadComponent: () => import('./features/participants/participants.component').then((m) => m.ParticipantsComponent),
       },
       {
-        path: 'competencias',
+        path: 'competitions',
         loadComponent: () =>
-          import('./features/competencias/competencias.component').then((m) => m.CompetenciasComponent),
+          import('./features/competitions/competitions.component').then((m) => m.CompetitionsComponent),
       },
       {
-        path: 'inscripciones',
+        path: 'registrations',
         loadComponent: () =>
-          import('./features/inscripciones/inscripciones.component').then((m) => m.InscripcionesComponent),
+          import('./features/registrations/registrations.component').then((m) => m.RegistrationsComponent),
       },
       {
-        path: 'obras',
-        loadComponent: () => import('./features/obras/obras.component').then((m) => m.ObrasComponent),
+        path: 'works',
+        loadComponent: () => import('./features/works/works.component').then((m) => m.WorksComponent),
       },
       {
-        path: 'anios',
-        loadComponent: () => import('./features/anios/anios.component').then((m) => m.AniosComponent),
+        path: 'editions',
+        loadComponent: () => import('./features/editions/editions.component').then((m) => m.EditionsComponent),
       },
     ],
   },

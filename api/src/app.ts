@@ -7,12 +7,12 @@ import { getDb } from './config/database';
 import { errorHandler } from './middleware/errorHandler';
 
 import authRoutes from './routes/auth';
-import personasRoutes from './routes/personas';
-import categoriasRoutes from './routes/categorias';
-import aniosRoutes from './routes/anios';
-import competenciasRoutes from './routes/competencias';
-import inscriptosRoutes from './routes/inscriptos';
-import obrasRoutes from './routes/obras';
+import participantsRoutes from './routes/participants';
+import categoriesRoutes from './routes/categories';
+import editionsRoutes from './routes/editions';
+import competitionsRoutes from './routes/competitions';
+import registrationsRoutes from './routes/registrations';
+import worksRoutes from './routes/works';
 
 const app = express();
 const PORT = parseInt(process.env.PORT || '3000', 10);
@@ -26,12 +26,12 @@ app.use(express.json());
 
 // Routes
 app.use('/api/auth', authRoutes);
-app.use('/api/personas', personasRoutes);
-app.use('/api/categorias', categoriasRoutes);
-app.use('/api/anios', aniosRoutes);
-app.use('/api/competencias', competenciasRoutes);
-app.use('/api/inscriptos', inscriptosRoutes);
-app.use('/api/obras', obrasRoutes);
+app.use('/api/participants', participantsRoutes);
+app.use('/api/categories', categoriesRoutes);
+app.use('/api/editions', editionsRoutes);
+app.use('/api/competitions', competitionsRoutes);
+app.use('/api/registrations', registrationsRoutes);
+app.use('/api/works', worksRoutes);
 
 // Health check
 app.get('/api/health', (_req, res) => {
@@ -40,7 +40,7 @@ app.get('/api/health', (_req, res) => {
 
 // 404 handler
 app.use((_req, res) => {
-  res.status(404).json({ error: 'Ruta no encontrada' });
+  res.status(404).json({ error: 'Route not found' });
 });
 
 app.use(errorHandler);

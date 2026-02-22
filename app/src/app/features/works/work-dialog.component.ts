@@ -8,10 +8,10 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ApiService } from '../../core/services/api.service';
-import { Competencia, Obra, Persona } from '../../core/models';
+import { Competition, Work, Participant } from '../../core/models';
 
 @Component({
-  selector: 'app-obra-dialog',
+  selector: 'app-work-dialog',
   standalone: true,
   imports: [
     ReactiveFormsModule, MatDialogModule, MatButtonModule,
@@ -25,20 +25,20 @@ import { Competencia, Obra, Persona } from '../../core/models';
       <form [formGroup]="form" class="form-grid">
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Título de la obra</mat-label>
-          <input matInput formControlName="nom_obra" />
+          <input matInput formControlName="title" />
         </mat-form-field>
 
         <mat-form-field appearance="outline">
           <mat-label>Participante</mat-label>
-          <input matInput [formControl]="personaCtrl"
-                 [matAutocomplete]="personaAuto"
+          <input matInput [formControl]="participantCtrl"
+                 [matAutocomplete]="participantAuto"
                  placeholder="Buscar por nombre..." />
-          <mat-autocomplete #personaAuto="matAutocomplete"
-                            [displayWith]="displayPersona"
-                            (optionSelected)="onPersonaSelected($event)">
-            @for (p of filteredPersonas; track p.id_persona) {
+          <mat-autocomplete #participantAuto="matAutocomplete"
+                            [displayWith]="displayParticipant"
+                            (optionSelected)="onParticipantSelected($event)">
+            @for (p of filteredParticipants; track p.id) {
               <mat-option [value]="p">
-                {{ p.apellido ? p.apellido + ', ' + p.nombre : p.nombre }}
+                {{ p.surname ? p.surname + ', ' + p.name : p.name }}
               </mat-option>
             }
           </mat-autocomplete>
@@ -46,21 +46,21 @@ import { Competencia, Obra, Persona } from '../../core/models';
 
         <mat-form-field appearance="outline">
           <mat-label>Competencia</mat-label>
-          <mat-select formControlName="competencia">
-            @for (c of competencias(); track c.id_comp) {
-              <mat-option [value]="c.id_comp">{{ c.id_comp }}</mat-option>
+          <mat-select formControlName="competition_id">
+            @for (c of competitions(); track c.id) {
+              <mat-option [value]="c.id">{{ c.id }}</mat-option>
             }
           </mat-select>
         </mat-form-field>
 
         <mat-form-field appearance="outline">
           <mat-label>Seudónimo / Nombre a mostrar</mat-label>
-          <input matInput formControlName="mod_particip" />
+          <input matInput formControlName="display_name" />
         </mat-form-field>
 
         <mat-form-field appearance="outline">
           <mat-label>Puesto</mat-label>
-          <mat-select formControlName="puesto">
+          <mat-select formControlName="placement">
             <mat-option value="">Sin asignar</mat-option>
             <mat-option value="1">1° lugar</mat-option>
             <mat-option value="2">2° lugar</mat-option>
@@ -70,8 +70,15 @@ import { Competencia, Obra, Persona } from '../../core/models';
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>ID Video YouTube (opcional)</mat-label>
-          <input matInput formControlName="video_urls" placeholder="ej. dQw4w9WgXcQ" />
+          <mat-label>Video YouTube (URL o ID)</mat-label>
+          <input matInput formControlName="video_url"
+                 placeholder="ej. https://youtube.com/watch?v=dQw4w9WgXcQ o dQw4w9WgXcQ"
+                 (input)="normalizeVideoUrl($event)" />
+          @if (form.get('video_url')?.value) {
+            <mat-hint>
+              https://youtube.com/watch?v={{ form.get('video_url')?.value }}
+            </mat-hint>
+          }
         </mat-form-field>
       </form>
     </mat-dialog-content>
@@ -93,58 +100,72 @@ import { Competencia, Obra, Persona } from '../../core/models';
     }
   `],
 })
-export class ObraDialogComponent implements OnInit {
+export class WorkDialogComponent implements OnInit {
   private fb = inject(FormBuilder);
   private api = inject(ApiService);
   private snack = inject(MatSnackBar);
-  private ref = inject(MatDialogRef<ObraDialogComponent>);
+  private ref = inject(MatDialogRef<WorkDialogComponent>);
 
   saving = signal(false);
-  personas = signal<Persona[]>([]);
-  competencias = signal<Competencia[]>([]);
+  participants = signal<Participant[]>([]);
+  competitions = signal<Competition[]>([]);
 
-  data = inject<Obra | undefined>(MAT_DIALOG_DATA);
+  data = inject<Work | undefined>(MAT_DIALOG_DATA);
 
-  personaCtrl = new FormControl<Persona | string>('');
+  participantCtrl = new FormControl<Participant | string>('');
 
-  get filteredPersonas(): Persona[] {
-    const val = this.personaCtrl.value;
+  get filteredParticipants(): Participant[] {
+    const val = this.participantCtrl.value;
     const search = typeof val === 'string' ? val.toLowerCase() : '';
-    if (!search) return this.personas();
-    return this.personas().filter((p) =>
-      `${p.nombre} ${p.apellido ?? ''}`.toLowerCase().includes(search) ||
-      `${p.apellido ?? ''} ${p.nombre}`.toLowerCase().includes(search)
+    if (!search) return this.participants();
+    return this.participants().filter((p) =>
+      `${p.name} ${p.surname ?? ''}`.toLowerCase().includes(search) ||
+      `${p.surname ?? ''} ${p.name}`.toLowerCase().includes(search)
     );
   }
 
-  displayPersona = (p: Persona | string | null): string => {
+  displayParticipant = (p: Participant | string | null): string => {
     if (!p || typeof p === 'string') return '';
-    return p.apellido ? `${p.apellido}, ${p.nombre}` : p.nombre;
+    return p.surname ? `${p.surname}, ${p.name}` : p.name;
   };
 
-  onPersonaSelected(event: MatAutocompleteSelectedEvent): void {
-    const p = event.option.value as Persona;
-    this.form.patchValue({ fk_particip: p.id_persona });
+  onParticipantSelected(event: MatAutocompleteSelectedEvent): void {
+    const p = event.option.value as Participant;
+    this.form.patchValue({ participant_id: p.id });
+  }
+
+  parseYoutubeId(input: string): string {
+    if (!input) return '';
+    const m = input.match(
+      /(?:youtube\.com\/(?:watch\?v=|embed\/|v\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/
+    );
+    return m ? m[1] : input;
+  }
+
+  normalizeVideoUrl(event: Event): void {
+    const raw = (event.target as HTMLInputElement).value;
+    const id = this.parseYoutubeId(raw);
+    if (id !== raw) this.form.patchValue({ video_url: id });
   }
 
   form = this.fb.nonNullable.group({
-    nom_obra: [this.data?.nom_obra ?? '', Validators.required],
-    fk_particip: [this.data?.fk_particip ?? 0, [Validators.required, Validators.min(1)]],
-    competencia: [this.data?.competencia ?? '', Validators.required],
-    mod_particip: [this.data?.mod_particip ?? ''],
-    puesto: [this.data?.puesto ?? ''],
-    video_urls: [this.data?.video_urls ?? ''],
+    title: [this.data?.title ?? '', Validators.required],
+    participant_id: [this.data?.participant_id ?? 0, [Validators.required, Validators.min(1)]],
+    competition_id: [this.data?.competition_id ?? '', Validators.required],
+    display_name: [this.data?.display_name ?? ''],
+    placement: [this.data?.placement ?? ''],
+    video_url: [this.data?.video_url ?? ''],
   });
 
   ngOnInit(): void {
-    this.api.getPersonas().subscribe((p) => {
-      this.personas.set(p);
-      if (this.data?.fk_particip) {
-        const selected = p.find((x) => x.id_persona === this.data!.fk_particip);
-        if (selected) this.personaCtrl.setValue(selected);
+    this.api.getParticipants().subscribe((p) => {
+      this.participants.set(p);
+      if (this.data?.participant_id) {
+        const selected = p.find((x) => x.id === this.data!.participant_id);
+        if (selected) this.participantCtrl.setValue(selected);
       }
     });
-    this.api.getCompetencias().subscribe((c) => this.competencias.set(c));
+    this.api.getCompetitions().subscribe((c) => this.competitions.set(c));
   }
 
   save(): void {
@@ -152,10 +173,10 @@ export class ObraDialogComponent implements OnInit {
     this.saving.set(true);
 
     const raw = this.form.getRawValue();
-    const payload = { ...raw, puesto: raw.puesto || undefined } as any;
-    const op = this.data?.id_obra
-      ? this.api.updateObra(this.data.id_obra, payload)
-      : this.api.createObra(payload);
+    const payload = { ...raw, placement: raw.placement || undefined } as any;
+    const op = this.data?.id
+      ? this.api.updateWork(this.data.id, payload)
+      : this.api.createWork(payload);
 
     op.subscribe({
       next: () => { this.snack.open('Guardado', 'OK', { duration: 2000 }); this.ref.close(true); },

@@ -9,10 +9,10 @@ import { MatListModule } from '@angular/material/list';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { ApiService } from '../../core/services/api.service';
-import { Anio } from '../../core/models';
+import { Edition } from '../../core/models';
 
 @Component({
-  selector: 'app-anios',
+  selector: 'app-editions',
   standalone: true,
   imports: [
     FormsModule, ReactiveFormsModule, MatCardModule, MatButtonModule, MatIconModule,
@@ -29,10 +29,10 @@ import { Anio } from '../../core/models';
     @if (showAdd) {
       <mat-card class="add-card">
         <mat-card-content>
-          <form [formGroup]="addForm" (ngSubmit)="createAnio()" class="add-row">
+          <form [formGroup]="addForm" (ngSubmit)="createEdition()" class="add-row">
             <mat-form-field appearance="outline">
               <mat-label>Año</mat-label>
-              <input matInput type="number" formControlName="id_anio" placeholder="2027" />
+              <input matInput type="number" formControlName="year" placeholder="2027" />
             </mat-form-field>
             <button mat-raised-button color="primary" type="submit" [disabled]="addForm.invalid">
               Crear
@@ -44,28 +44,28 @@ import { Anio } from '../../core/models';
     }
 
     <mat-accordion>
-      @for (a of anios(); track a.id_anio) {
+      @for (e of editions(); track e.year) {
         <mat-expansion-panel>
           <mat-expansion-panel-header>
-            <mat-panel-title>Edición {{ a.id_anio }}</mat-panel-title>
+            <mat-panel-title>Edición {{ e.year }}</mat-panel-title>
           </mat-expansion-panel-header>
 
-          <form class="anio-form" (ngSubmit)="saveAnio(a)">
+          <form class="edition-form" (ngSubmit)="saveEdition(e)">
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>Comisión</mat-label>
-              <textarea matInput [(ngModel)]="a.comision" [name]="'comision-'+a.id_anio" rows="4"></textarea>
+              <textarea matInput [(ngModel)]="e.committee" [name]="'committee-'+e.year" rows="4"></textarea>
             </mat-form-field>
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>URL imagen comisión</mat-label>
-              <input matInput [(ngModel)]="a.comision_img" [name]="'comision_img-'+a.id_anio" />
+              <input matInput [(ngModel)]="e.committee_img" [name]="'committee_img-'+e.year" />
             </mat-form-field>
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>Presentadores</mat-label>
-              <textarea matInput [(ngModel)]="a.presentadores" [name]="'presentadores-'+a.id_anio" rows="3"></textarea>
+              <textarea matInput [(ngModel)]="e.presenters" [name]="'presenters-'+e.year" rows="3"></textarea>
             </mat-form-field>
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>URL imagen presentadores</mat-label>
-              <input matInput [(ngModel)]="a.presentadores_img" [name]="'presentadores_img-'+a.id_anio" />
+              <input matInput [(ngModel)]="e.presenters_img" [name]="'presenters_img-'+e.year" />
             </mat-form-field>
             <button mat-raised-button color="primary" type="submit">Guardar</button>
           </form>
@@ -79,20 +79,20 @@ import { Anio } from '../../core/models';
     .add-card { margin-bottom: 20px; }
     .add-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
     .add-row mat-form-field { width: 180px; }
-    .anio-form { display: flex; flex-direction: column; gap: 4px; }
+    .edition-form { display: flex; flex-direction: column; gap: 4px; }
     .full-width { width: 100%; }
   `],
 })
-export class AniosComponent implements OnInit {
+export class EditionsComponent implements OnInit {
   private api = inject(ApiService);
   private snack = inject(MatSnackBar);
   private fb = inject(FormBuilder);
 
-  anios = signal<Anio[]>([]);
+  editions = signal<Edition[]>([]);
   showAdd = false;
 
   addForm = this.fb.nonNullable.group({
-    id_anio: [new Date().getFullYear() + 1, [Validators.required, Validators.min(1900)]],
+    year: [new Date().getFullYear() + 1, [Validators.required, Validators.min(1900)]],
   });
 
   ngOnInit(): void {
@@ -100,23 +100,23 @@ export class AniosComponent implements OnInit {
   }
 
   load(): void {
-    this.api.getAnios().subscribe((a) => this.anios.set(a));
+    this.api.getEditions().subscribe((e) => this.editions.set(e));
   }
 
-  createAnio(): void {
+  createEdition(): void {
     if (this.addForm.invalid) return;
-    this.api.createAnio(this.addForm.value.id_anio!).subscribe({
+    this.api.createEdition(this.addForm.value.year!).subscribe({
       next: () => { this.snack.open('Edición creada', 'OK', { duration: 2000 }); this.load(); this.showAdd = false; },
       error: (err) => this.snack.open(err.error?.error || 'Error', 'OK', { duration: 3000 }),
     });
   }
 
-  saveAnio(a: Anio): void {
-    this.api.updateAnio(a.id_anio, {
-      comision: a.comision,
-      comision_img: a.comision_img,
-      presentadores: a.presentadores,
-      presentadores_img: a.presentadores_img,
+  saveEdition(e: Edition): void {
+    this.api.updateEdition(e.year, {
+      committee: e.committee,
+      committee_img: e.committee_img,
+      presenters: e.presenters,
+      presenters_img: e.presenters_img,
     }).subscribe({
       next: () => this.snack.open('Guardado', 'OK', { duration: 2000 }),
       error: () => this.snack.open('Error al guardar', 'OK', { duration: 3000 }),

@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { Persona, Categoria, Anio, Competencia, Inscripto, Obra } from '../models';
+import { Participant, Category, Edition, Competition, Registration, Work } from '../models';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
@@ -10,93 +10,93 @@ export class ApiService {
 
   constructor(private http: HttpClient) {}
 
-  // ---------- Personas ----------
-  getPersonas(params?: { tipo?: string; q?: string }): Observable<Persona[]> {
-    return this.http.get<Persona[]>(`${this.base}/personas`, { params: params as Record<string, string> });
+  // ---------- Participants ----------
+  getParticipants(params?: { type?: string; q?: string }): Observable<Participant[]> {
+    return this.http.get<Participant[]>(`${this.base}/participants`, { params: params as Record<string, string> });
   }
-  getPersona(id: number): Observable<Persona> {
-    return this.http.get<Persona>(`${this.base}/personas/${id}`);
+  getParticipant(id: number): Observable<Participant> {
+    return this.http.get<Participant>(`${this.base}/participants/${id}`);
   }
-  createPersona(p: Persona): Observable<Persona> {
-    return this.http.post<Persona>(`${this.base}/personas`, p);
+  createParticipant(p: Participant): Observable<Participant> {
+    return this.http.post<Participant>(`${this.base}/participants`, p);
   }
-  updatePersona(id: number, p: Persona): Observable<Persona> {
-    return this.http.put<Persona>(`${this.base}/personas/${id}`, p);
+  updateParticipant(id: number, p: Participant): Observable<Participant> {
+    return this.http.put<Participant>(`${this.base}/participants/${id}`, p);
   }
-  deletePersona(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.base}/personas/${id}`);
-  }
-
-  // ---------- Categorias ----------
-  getCategorias(): Observable<Categoria[]> {
-    return this.http.get<Categoria[]>(`${this.base}/categorias`);
-  }
-  createCategoria(c: Omit<Categoria, 'id_cat'>): Observable<Categoria> {
-    return this.http.post<Categoria>(`${this.base}/categorias`, c);
-  }
-  updateCategoria(id: number, c: Omit<Categoria, 'id_cat'>): Observable<Categoria> {
-    return this.http.put<Categoria>(`${this.base}/categorias/${id}`, c);
-  }
-  deleteCategoria(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.base}/categorias/${id}`);
+  deleteParticipant(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.base}/participants/${id}`);
   }
 
-  // ---------- Anios ----------
-  getAnios(): Observable<Anio[]> {
-    return this.http.get<Anio[]>(`${this.base}/anios`);
+  // ---------- Categories ----------
+  getCategories(): Observable<Category[]> {
+    return this.http.get<Category[]>(`${this.base}/categories`);
   }
-  getAnio(id: number): Observable<Anio> {
-    return this.http.get<Anio>(`${this.base}/anios/${id}`);
+  createCategory(c: Omit<Category, 'id'>): Observable<Category> {
+    return this.http.post<Category>(`${this.base}/categories`, c);
   }
-  createAnio(id_anio: number): Observable<Anio> {
-    return this.http.post<Anio>(`${this.base}/anios`, { id_anio });
+  updateCategory(id: number, c: Omit<Category, 'id'>): Observable<Category> {
+    return this.http.put<Category>(`${this.base}/categories/${id}`, c);
   }
-  updateAnio(id: number, data: Partial<Anio>): Observable<Anio> {
-    return this.http.put<Anio>(`${this.base}/anios/${id}`, data);
-  }
-
-  // ---------- Competencias ----------
-  getCompetencias(params?: { anio?: string; grupind?: string }): Observable<Competencia[]> {
-    return this.http.get<Competencia[]>(`${this.base}/competencias`, { params: params as Record<string, string> });
-  }
-  getCompetencia(id: string): Observable<Competencia> {
-    return this.http.get<Competencia>(`${this.base}/competencias/${id}`);
-  }
-  createCompetencia(c: Competencia): Observable<Competencia> {
-    return this.http.post<Competencia>(`${this.base}/competencias`, c);
-  }
-  updateCompetencia(id: string, c: Partial<Competencia>): Observable<Competencia> {
-    return this.http.put<Competencia>(`${this.base}/competencias/${id}`, c);
-  }
-  deleteCompetencia(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.base}/competencias/${id}`);
+  deleteCategory(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.base}/categories/${id}`);
   }
 
-  // ---------- Inscriptos ----------
-  getInscriptos(params?: { anio?: string; comp?: string; persona?: string }): Observable<Inscripto[]> {
-    return this.http.get<Inscripto[]>(`${this.base}/inscriptos`, { params: params as Record<string, string> });
+  // ---------- Editions ----------
+  getEditions(): Observable<Edition[]> {
+    return this.http.get<Edition[]>(`${this.base}/editions`);
   }
-  createInscripto(i: Inscripto): Observable<Inscripto> {
-    return this.http.post<Inscripto>(`${this.base}/inscriptos`, i);
+  getEdition(year: number): Observable<Edition> {
+    return this.http.get<Edition>(`${this.base}/editions/${year}`);
   }
-  updateInscripto(id: number, data: Partial<Inscripto>): Observable<Inscripto> {
-    return this.http.put<Inscripto>(`${this.base}/inscriptos/${id}`, data);
+  createEdition(year: number): Observable<Edition> {
+    return this.http.post<Edition>(`${this.base}/editions`, { year });
   }
-  darBajaInscripto(id: number): Observable<{ message: string }> {
-    return this.http.patch<{ message: string }>(`${this.base}/inscriptos/${id}/baja`, {});
+  updateEdition(year: number, data: Partial<Edition>): Observable<Edition> {
+    return this.http.put<Edition>(`${this.base}/editions/${year}`, data);
   }
 
-  // ---------- Obras ----------
-  getObras(params?: { comp?: string; persona?: string }): Observable<Obra[]> {
-    return this.http.get<Obra[]>(`${this.base}/obras`, { params: params as Record<string, string> });
+  // ---------- Competitions ----------
+  getCompetitions(params?: { year?: string; type?: string }): Observable<Competition[]> {
+    return this.http.get<Competition[]>(`${this.base}/competitions`, { params: params as Record<string, string> });
   }
-  createObra(o: Obra): Observable<Obra> {
-    return this.http.post<Obra>(`${this.base}/obras`, o);
+  getCompetition(id: string): Observable<Competition> {
+    return this.http.get<Competition>(`${this.base}/competitions/${id}`);
   }
-  updateObra(id: number, o: Partial<Obra>): Observable<Obra> {
-    return this.http.put<Obra>(`${this.base}/obras/${id}`, o);
+  createCompetition(c: Competition): Observable<Competition> {
+    return this.http.post<Competition>(`${this.base}/competitions`, c);
   }
-  deleteObra(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.base}/obras/${id}`);
+  updateCompetition(id: string, c: Partial<Competition>): Observable<Competition> {
+    return this.http.put<Competition>(`${this.base}/competitions/${id}`, c);
+  }
+  deleteCompetition(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.base}/competitions/${id}`);
+  }
+
+  // ---------- Registrations ----------
+  getRegistrations(params?: { year?: string; comp?: string; participant?: string }): Observable<Registration[]> {
+    return this.http.get<Registration[]>(`${this.base}/registrations`, { params: params as Record<string, string> });
+  }
+  createRegistration(r: Registration): Observable<Registration> {
+    return this.http.post<Registration>(`${this.base}/registrations`, r);
+  }
+  updateRegistration(id: number, data: Partial<Registration>): Observable<Registration> {
+    return this.http.put<Registration>(`${this.base}/registrations/${id}`, data);
+  }
+  dropRegistration(id: number): Observable<{ message: string }> {
+    return this.http.patch<{ message: string }>(`${this.base}/registrations/${id}/drop`, {});
+  }
+
+  // ---------- Works ----------
+  getWorks(params?: { comp?: string; participant?: string }): Observable<Work[]> {
+    return this.http.get<Work[]>(`${this.base}/works`, { params: params as Record<string, string> });
+  }
+  createWork(w: Work): Observable<Work> {
+    return this.http.post<Work>(`${this.base}/works`, w);
+  }
+  updateWork(id: number, w: Partial<Work>): Observable<Work> {
+    return this.http.put<Work>(`${this.base}/works/${id}`, w);
+  }
+  deleteWork(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.base}/works/${id}`);
   }
 }

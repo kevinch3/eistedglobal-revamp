@@ -13,11 +13,11 @@ import { MatCardModule } from '@angular/material/card';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatChipsModule } from '@angular/material/chips';
 import { ApiService } from '../../core/services/api.service';
-import { Anio, Competencia, Obra } from '../../core/models';
-import { ObraDialogComponent } from './obra-dialog.component';
+import { Edition, Competition, Work } from '../../core/models';
+import { WorkDialogComponent } from './work-dialog.component';
 
 @Component({
-  selector: 'app-obras',
+  selector: 'app-works',
   standalone: true,
   imports: [
     FormsModule, MatTableModule, MatPaginatorModule, MatSortModule,
@@ -37,10 +37,10 @@ import { ObraDialogComponent } from './obra-dialog.component';
         <div class="filters">
           <mat-form-field appearance="outline">
             <mat-label>Año</mat-label>
-            <mat-select [(ngModel)]="anioFilter" (ngModelChange)="onAnioChange()">
+            <mat-select [(ngModel)]="yearFilter" (ngModelChange)="onYearChange()">
               <mat-option value="">Todos</mat-option>
-              @for (a of anios(); track a.id_anio) {
-                <mat-option [value]="a.id_anio">{{ a.id_anio }}</mat-option>
+              @for (e of editions(); track e.year) {
+                <mat-option [value]="e.year">{{ e.year }}</mat-option>
               }
             </mat-select>
           </mat-form-field>
@@ -49,8 +49,8 @@ import { ObraDialogComponent } from './obra-dialog.component';
             <mat-label>Competencia</mat-label>
             <mat-select [(ngModel)]="compFilter" (ngModelChange)="load()">
               <mat-option value="">Todas</mat-option>
-              @for (c of competencias(); track c.id_comp) {
-                <mat-option [value]="c.id_comp">{{ c.id_comp }}</mat-option>
+              @for (c of competitions(); track c.id) {
+                <mat-option [value]="c.id">{{ c.id }}</mat-option>
               }
             </mat-select>
           </mat-form-field>
@@ -64,37 +64,37 @@ import { ObraDialogComponent } from './obra-dialog.component';
 
         <div class="table-scroll">
         <table mat-table [dataSource]="dataSource" matSort class="full-width">
-          <ng-container matColumnDef="nom_obra">
+          <ng-container matColumnDef="title">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Obra</th>
-            <td mat-cell *matCellDef="let o">{{ o.nom_obra }}</td>
+            <td mat-cell *matCellDef="let w">{{ w.title }}</td>
           </ng-container>
 
-          <ng-container matColumnDef="participante">
+          <ng-container matColumnDef="participant">
             <th mat-header-cell *matHeaderCellDef>Participante</th>
-            <td mat-cell *matCellDef="let o">
-              {{ o.mod_particip || (o.apellido ? o.apellido + ', ' + o.nombre : o.nombre) }}
+            <td mat-cell *matCellDef="let w">
+              {{ w.display_name || (w.surname ? w.surname + ', ' + w.name : w.name) }}
             </td>
           </ng-container>
 
-          <ng-container matColumnDef="competencia">
+          <ng-container matColumnDef="competition_id">
             <th mat-header-cell *matHeaderCellDef>Competencia</th>
-            <td mat-cell *matCellDef="let o"><code>{{ o.competencia }}</code></td>
+            <td mat-cell *matCellDef="let w"><code>{{ w.competition_id }}</code></td>
           </ng-container>
 
-          <ng-container matColumnDef="puesto">
+          <ng-container matColumnDef="placement">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Puesto</th>
-            <td mat-cell *matCellDef="let o">
-              @if (o.puesto) {
-                <mat-chip [color]="puestoColor(o.puesto)" highlighted>{{ puestoLabel(o.puesto) }}</mat-chip>
+            <td mat-cell *matCellDef="let w">
+              @if (w.placement) {
+                <mat-chip [color]="placementColor(w.placement)" highlighted>{{ placementLabel(w.placement) }}</mat-chip>
               } @else { — }
             </td>
           </ng-container>
 
           <ng-container matColumnDef="actions">
             <th mat-header-cell *matHeaderCellDef>Acciones</th>
-            <td mat-cell *matCellDef="let o">
-              <button mat-icon-button color="primary" (click)="openDialog(o)"><mat-icon>edit</mat-icon></button>
-              <button mat-icon-button color="warn" (click)="delete(o)"><mat-icon>delete</mat-icon></button>
+            <td mat-cell *matCellDef="let w">
+              <button mat-icon-button color="primary" (click)="openDialog(w)"><mat-icon>edit</mat-icon></button>
+              <button mat-icon-button color="warn" (click)="delete(w)"><mat-icon>delete</mat-icon></button>
             </td>
           </ng-container>
 
@@ -119,39 +119,39 @@ import { ObraDialogComponent } from './obra-dialog.component';
     code { background: #f0f0f0; padding: 2px 6px; border-radius: 4px; font-size: 0.85rem; }
   `],
 })
-export class ObrasComponent implements OnInit {
+export class WorksComponent implements OnInit {
   private api = inject(ApiService);
   private dialog = inject(MatDialog);
   private snack = inject(MatSnackBar);
 
-  columns = ['nom_obra', 'participante', 'competencia', 'puesto', 'actions'];
-  dataSource = new MatTableDataSource<Obra>();
-  anios = signal<Anio[]>([]);
-  competencias = signal<Competencia[]>([]);
-  anioFilter: number | string = '';
+  columns = ['title', 'participant', 'competition_id', 'placement', 'actions'];
+  dataSource = new MatTableDataSource<Work>();
+  editions = signal<Edition[]>([]);
+  competitions = signal<Competition[]>([]);
+  yearFilter: number | string = '';
   compFilter = '';
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
   ngOnInit(): void {
-    this.api.getAnios().subscribe((a) => this.anios.set(a));
+    this.api.getEditions().subscribe((e) => this.editions.set(e));
     this.load();
   }
 
-  onAnioChange(): void {
+  onYearChange(): void {
     this.compFilter = '';
-    if (this.anioFilter) {
-      this.api.getCompetencias({ anio: String(this.anioFilter) }).subscribe((c) => this.competencias.set(c));
+    if (this.yearFilter) {
+      this.api.getCompetitions({ year: String(this.yearFilter) }).subscribe((c) => this.competitions.set(c));
     } else {
-      this.competencias.set([]);
+      this.competitions.set([]);
     }
     this.load();
   }
 
   load(): void {
     const params = this.compFilter ? { comp: this.compFilter } : undefined;
-    this.api.getObras(params).subscribe((data) => {
+    this.api.getWorks(params).subscribe((data) => {
       this.dataSource.data = data;
       this.dataSource.paginator = this.paginator;
       this.dataSource.sort = this.sort;
@@ -162,24 +162,24 @@ export class ObrasComponent implements OnInit {
     this.dataSource.filter = (event.target as HTMLInputElement).value.trim().toLowerCase();
   }
 
-  openDialog(obra?: Obra): void {
-    const ref = this.dialog.open(ObraDialogComponent, { width: '540px', data: obra });
+  openDialog(work?: Work): void {
+    const ref = this.dialog.open(WorkDialogComponent, { width: '540px', data: work });
     ref.afterClosed().subscribe((r) => { if (r) this.load(); });
   }
 
-  delete(obra: Obra): void {
-    if (!confirm(`¿Eliminar "${obra.nom_obra}"?`)) return;
-    this.api.deleteObra(obra.id_obra!).subscribe({
+  delete(work: Work): void {
+    if (!confirm(`¿Eliminar "${work.title}"?`)) return;
+    this.api.deleteWork(work.id!).subscribe({
       next: () => { this.snack.open('Eliminada', 'OK', { duration: 2000 }); this.load(); },
       error: () => this.snack.open('Error', 'OK', { duration: 3000 }),
     });
   }
 
-  puestoLabel(p: string): string {
+  placementLabel(p: string): string {
     return p === 'mencion' ? 'Mención' : `${p}° lugar`;
   }
 
-  puestoColor(p: string): string {
+  placementColor(p: string): string {
     return p === '1' ? 'warn' : p === '2' ? 'accent' : 'primary';
   }
 }

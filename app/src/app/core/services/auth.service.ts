@@ -11,7 +11,7 @@ export class AuthService {
   private readonly USER_KEY = 'eistedglobal_user';
 
   private _token = signal<string | null>(localStorage.getItem(this.TOKEN_KEY));
-  private _user = signal<{ nombre: string; username: string } | null>(
+  private _user = signal<{ name: string; username: string } | null>(
     JSON.parse(localStorage.getItem(this.USER_KEY) || 'null')
   );
 
@@ -27,9 +27,9 @@ export class AuthService {
       .pipe(
         tap((res) => {
           localStorage.setItem(this.TOKEN_KEY, res.token);
-          localStorage.setItem(this.USER_KEY, JSON.stringify({ nombre: res.nombre, username: res.username }));
+          localStorage.setItem(this.USER_KEY, JSON.stringify({ name: res.name, username: res.username }));
           this._token.set(res.token);
-          this._user.set({ nombre: res.nombre, username: res.username });
+          this._user.set({ name: res.name, username: res.username });
         })
       );
   }

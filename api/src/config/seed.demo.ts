@@ -1,6 +1,5 @@
 /**
  * Demo seed — wipes the current DB and populates it with realistic mock data.
- * The real data is preserved in api/data/eistedglobal.real.db
  * Run with: npm run seed:demo
  */
 import bcrypt from 'bcryptjs';
@@ -13,19 +12,19 @@ const db = getDb();
 
 // ── 1. Wipe all tables (reverse FK order) ────────────────────────────────
 db.exec(`
-  DELETE FROM obra;
-  DELETE FROM inscriptos;
-  DELETE FROM subida;
-  DELETE FROM persona;
-  DELETE FROM competencia;
-  DELETE FROM categoria;
-  DELETE FROM anio;
-  DELETE FROM usuario;
+  DELETE FROM work;
+  DELETE FROM registration;
+  DELETE FROM upload;
+  DELETE FROM participant;
+  DELETE FROM competition;
+  DELETE FROM category;
+  DELETE FROM edition;
+  DELETE FROM user;
 `);
 console.log('✓ Database cleared');
 
 // ── 2. Admin user ────────────────────────────────────────────────────────
-db.prepare('INSERT INTO usuario (username, password, nombre) VALUES (?, ?, ?)').run(
+db.prepare('INSERT INTO user (username, password, name) VALUES (?, ?, ?)').run(
   'admin',
   bcrypt.hashSync('admin1234', 10),
   'Administrador',
@@ -33,71 +32,71 @@ db.prepare('INSERT INTO usuario (username, password, nombre) VALUES (?, ?, ?)').
 console.log('✓ Admin user  →  admin / admin1234');
 
 // ── 3. Categories ────────────────────────────────────────────────────────
-const categorias = [
-  { nombre: 'Canto Individual', nomcym: 'Canu Unigol'  },
-  { nombre: 'Canto Grupal',     nomcym: 'Canu Grŵp'   },
-  { nombre: 'Recitado',         nomcym: 'Adrodd'       },
-  { nombre: 'Danza',            nomcym: 'Dawns'        },
-  { nombre: 'Instrumental',     nomcym: 'Offerynnol'   },
-  { nombre: 'Composición',      nomcym: 'Cyfansoddi'   },
-  { nombre: 'Artesanías',       nomcym: 'Crefft'       },
+const categories = [
+  { name: 'Canto Individual', name_welsh: 'Canu Unigol'  },
+  { name: 'Canto Grupal',     name_welsh: 'Canu Grŵp'   },
+  { name: 'Recitado',         name_welsh: 'Adrodd'       },
+  { name: 'Danza',            name_welsh: 'Dawns'        },
+  { name: 'Instrumental',     name_welsh: 'Offerynnol'   },
+  { name: 'Composición',      name_welsh: 'Cyfansoddi'   },
+  { name: 'Artesanías',       name_welsh: 'Crefft'       },
 ];
 
-const insertCat = db.prepare('INSERT INTO categoria (nombre, nomcym) VALUES (?, ?)');
-const catIds: number[] = categorias.map(
-  cat => Number(insertCat.run(cat.nombre, cat.nomcym).lastInsertRowid),
+const insertCat = db.prepare('INSERT INTO category (name, name_welsh) VALUES (?, ?)');
+const catIds: number[] = categories.map(
+  cat => Number(insertCat.run(cat.name, cat.name_welsh).lastInsertRowid),
 );
 console.log('✓ Categories seeded');
 
-// ── 4. Years ─────────────────────────────────────────────────────────────
+// ── 4. Editions (years) ──────────────────────────────────────────────────
 const CURRENT_YEAR = new Date().getFullYear();
 const YEARS = Array.from({ length: 4 }, (_, i) => CURRENT_YEAR - 3 + i);
 
-const insertAnio = db.prepare('INSERT INTO anio (id_anio, comision, presentadores) VALUES (?, ?, ?)');
+const insertEdition = db.prepare('INSERT INTO edition (year, committee, presenters) VALUES (?, ?, ?)');
 for (const year of YEARS) {
-  const comision      = Array.from({ length: 5 }, () => faker.person.fullName()).join(', ');
-  const presentadores = [faker.person.fullName(), faker.person.fullName()].join(', ');
-  insertAnio.run(year, comision, presentadores);
+  const committee  = Array.from({ length: 5 }, () => faker.person.fullName()).join(', ');
+  const presenters = [faker.person.fullName(), faker.person.fullName()].join(', ');
+  insertEdition.run(year, committee, presenters);
 }
-console.log(`✓ Years: ${YEARS.join(', ')}`);
+console.log(`✓ Editions: ${YEARS.join(', ')}`);
 
-// ── 5. Competencias ───────────────────────────────────────────────────────
+// ── 5. Competitions ───────────────────────────────────────────────────────
 interface CompDef {
   catIndex: number;
   desc:     string;
-  idioma:   string;
-  grupind:  'IND' | 'GRU';
+  language: string;
+  type:     'IND' | 'GRU';
 }
 
 const compDefs: CompDef[] = [
   // Canto Individual
-  { catIndex: 0, desc: 'Solo vocal — adultos (mayores de 18)',  idioma: 'Castellano', grupind: 'IND' },
-  { catIndex: 0, desc: 'Solo vocal — juvenil (13–17 años)',      idioma: 'Cymraeg',    grupind: 'IND' },
-  { catIndex: 0, desc: 'Solo vocal — infantil (hasta 12 años)', idioma: 'Castellano', grupind: 'IND' },
+  { catIndex: 0, desc: 'Solo vocal — adultos (mayores de 18)',  language: 'Castellano', type: 'IND' },
+  { catIndex: 0, desc: 'Solo vocal — juvenil (13–17 años)',      language: 'Cymraeg',    type: 'IND' },
+  { catIndex: 0, desc: 'Solo vocal — infantil (hasta 12 años)', language: 'Castellano', type: 'IND' },
   // Canto Grupal
-  { catIndex: 1, desc: 'Coro mixto — hasta 20 voces',          idioma: 'Cymraeg',    grupind: 'GRU' },
-  { catIndex: 1, desc: 'Dúo o trío vocal',                     idioma: 'Castellano', grupind: 'GRU' },
+  { catIndex: 1, desc: 'Coro mixto — hasta 20 voces',          language: 'Cymraeg',    type: 'GRU' },
+  { catIndex: 1, desc: 'Dúo o trío vocal',                     language: 'Castellano', type: 'GRU' },
   // Recitado
-  { catIndex: 2, desc: 'Poesía en castellano',                 idioma: 'Castellano', grupind: 'IND' },
-  { catIndex: 2, desc: 'Poesía en cymraeg',                    idioma: 'Cymraeg',    grupind: 'IND' },
+  { catIndex: 2, desc: 'Poesía en castellano',                 language: 'Castellano', type: 'IND' },
+  { catIndex: 2, desc: 'Poesía en cymraeg',                    language: 'Cymraeg',    type: 'IND' },
   // Danza
-  { catIndex: 3, desc: 'Danza tradicional galesa',             idioma: 'Castellano', grupind: 'GRU' },
-  { catIndex: 3, desc: 'Danza folclórica argentina',           idioma: 'Castellano', grupind: 'GRU' },
+  { catIndex: 3, desc: 'Danza tradicional galesa',             language: 'Castellano', type: 'GRU' },
+  { catIndex: 3, desc: 'Danza folclórica argentina',           language: 'Castellano', type: 'GRU' },
   // Instrumental
-  { catIndex: 4, desc: 'Piano — libre',                        idioma: 'Castellano', grupind: 'IND' },
-  { catIndex: 4, desc: 'Cuerdas — libre',                      idioma: 'Castellano', grupind: 'IND' },
+  { catIndex: 4, desc: 'Piano — libre',                        language: 'Castellano', type: 'IND' },
+  { catIndex: 4, desc: 'Cuerdas — libre',                      language: 'Castellano', type: 'IND' },
   // Composición
-  { catIndex: 5, desc: 'Composición original — con letra',     idioma: 'Castellano', grupind: 'IND' },
-  { catIndex: 5, desc: 'Composición original — instrumental',  idioma: 'Castellano', grupind: 'IND' },
+  { catIndex: 5, desc: 'Composición original — con letra',     language: 'Castellano', type: 'IND' },
+  { catIndex: 5, desc: 'Composición original — instrumental',  language: 'Castellano', type: 'IND' },
   // Artesanías
-  { catIndex: 6, desc: 'Tejido y bordado',                     idioma: 'Castellano', grupind: 'IND' },
-  { catIndex: 6, desc: 'Cerámica y alfarería',                 idioma: 'Castellano', grupind: 'IND' },
+  { catIndex: 6, desc: 'Tejido y bordado',                     language: 'Castellano', type: 'IND' },
+  { catIndex: 6, desc: 'Cerámica y alfarería',                 language: 'Castellano', type: 'IND' },
 ];
 
-interface CompEntry { id: string; grupind: 'IND' | 'GRU'; anio: number }
+interface CompEntry { id: string; type: 'IND' | 'GRU'; year: number }
 
 const insertComp = db.prepare(`
-  INSERT INTO competencia (id_comp, categoria, descripcion, idioma, fk_anio, grupind, rank)
+  INSERT INTO competition (id, category_id, description, language, year, type, rank)
   VALUES (?, ?, ?, ?, ?, ?, ?)
 `);
 
@@ -105,25 +104,25 @@ const allComps: CompEntry[] = [];
 for (const year of YEARS) {
   compDefs.forEach((def, i) => {
     const id = `${year}-C${String(i + 1).padStart(2, '0')}`;
-    insertComp.run(id, catIds[def.catIndex], def.desc, def.idioma, year, def.grupind, i + 1);
-    allComps.push({ id, grupind: def.grupind, anio: year });
+    insertComp.run(id, catIds[def.catIndex], def.desc, def.language, year, def.type, i + 1);
+    allComps.push({ id, type: def.type, year });
   });
 }
 console.log(`✓ ${allComps.length} competitions seeded`);
 
-// ── 6. Personas (participants) ───────────────────────────────────────────
-const CIUDADES    = ['Buenos Aires', 'Trelew', 'Gaiman', 'Puerto Madryn', 'Bariloche', 'Neuquén', 'Comodoro Rivadavia', 'Esquel'];
-const NACS        = ['Argentina', 'Uruguay', 'Chile', 'Brasil', 'España', 'Gales'];
+// ── 6. Participants ───────────────────────────────────────────────────────
+const CITIES        = ['Buenos Aires', 'Trelew', 'Gaiman', 'Puerto Madryn', 'Bariloche', 'Neuquén', 'Comodoro Rivadavia', 'Esquel'];
+const NATIONALITIES = ['Argentina', 'Uruguay', 'Chile', 'Brasil', 'España', 'Gales'];
 // Welsh-Argentine surnames typical of Patagonia
 const WELSH_SURNAMES = ['Evans', 'Jones', 'Williams', 'Roberts', 'Davies', 'Hughes', 'Morgan', 'Lewis', 'Thomas', 'Jenkins', 'Price', 'Owen'];
 
-const insertPersona = db.prepare(`
-  INSERT INTO persona (nombre, apellido, dni, fecha_nac, nacionalidad, residencia, email, telefono, tipo)
-  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+const insertParticipant = db.prepare(`
+  INSERT INTO participant (name, surname, document_id, birth_date, nationality, residence, email, phone, type, active)
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
 `);
 
-interface PersonaEntry { id: number; tipo: 'IND' | 'GRU' }
-const allPersonas: PersonaEntry[] = [];
+interface ParticipantEntry { id: number; type: 'IND' | 'GRU' }
+const allParticipants: ParticipantEntry[] = [];
 
 function argPhone(): string {
   const area = faker.number.int({ min: 11, max: 99 });
@@ -134,18 +133,18 @@ function argPhone(): string {
 
 // Individual participants — 30 people
 for (let i = 0; i < 30; i++) {
-  const nombre   = faker.person.firstName();
+  const name    = faker.person.firstName();
   // Every 4th person gets a Welsh-Patagonian surname
-  const apellido = i % 4 === 0
+  const surname = i % 4 === 0
     ? faker.helpers.arrayElement(WELSH_SURNAMES)
     : faker.person.lastName();
-  const dni      = faker.number.int({ min: 20_000_000, max: 45_000_000 });
-  const fechaNac = faker.date.birthdate({ min: 8, max: 65, mode: 'age' }).toISOString().slice(0, 10);
-  const nac      = faker.helpers.arrayElement(NACS);
-  const res      = faker.helpers.arrayElement(CIUDADES);
-  const email    = faker.internet.email({ firstName: nombre, lastName: apellido }).toLowerCase();
-  const r = insertPersona.run(nombre, apellido, String(dni), fechaNac, nac, res, email, argPhone(), 'IND');
-  allPersonas.push({ id: Number(r.lastInsertRowid), tipo: 'IND' });
+  const docId     = faker.number.int({ min: 20_000_000, max: 45_000_000 });
+  const birthDate = faker.date.birthdate({ min: 8, max: 65, mode: 'age' }).toISOString().slice(0, 10);
+  const nationality = faker.helpers.arrayElement(NATIONALITIES);
+  const residence   = faker.helpers.arrayElement(CITIES);
+  const email       = faker.internet.email({ firstName: name, lastName: surname }).toLowerCase();
+  const r = insertParticipant.run(name, surname, String(docId), birthDate, nationality, residence, email, argPhone(), 'IND');
+  allParticipants.push({ id: Number(r.lastInsertRowid), type: 'IND' });
 }
 
 // Groups — 6 ensembles/choirs/dance groups
@@ -157,23 +156,23 @@ const GROUP_NAMES = [
   'Trío Instrumental del Sur',
   'Coro Infantil Gaiman',
 ];
-for (const nombre of GROUP_NAMES) {
-  const res   = faker.helpers.arrayElement(CIUDADES);
-  const email = faker.internet.email();
-  const r = insertPersona.run(nombre, '', '', '', 'Argentina', res, email, argPhone(), 'GRU');
-  allPersonas.push({ id: Number(r.lastInsertRowid), tipo: 'GRU' });
+for (const name of GROUP_NAMES) {
+  const residence = faker.helpers.arrayElement(CITIES);
+  const email     = faker.internet.email();
+  const r = insertParticipant.run(name, '', '', '', 'Argentina', residence, email, argPhone(), 'GRU');
+  allParticipants.push({ id: Number(r.lastInsertRowid), type: 'GRU' });
 }
-console.log(`✓ ${allPersonas.length} participants seeded`);
+console.log(`✓ ${allParticipants.length} participants seeded`);
 
-// ── 7. Inscriptos ────────────────────────────────────────────────────────
-const insertInsc = db.prepare(`
-  INSERT INTO inscriptos (fk_persona, fk_comp, seudonimo, fecha_inscrip, anio_insc, baja)
+// ── 7. Registrations ─────────────────────────────────────────────────────
+const insertReg = db.prepare(`
+  INSERT INTO registration (participant_id, competition_id, pseudonym, registered_at, year, dropped)
   VALUES (?, ?, ?, ?, ?, 0)
 `);
 
-interface InscEntry { personaId: number; compId: string; anio: number }
-const allInscs: InscEntry[] = [];
-const inscSet = new Set<string>(); // prevent duplicate (persona, comp) pairs
+interface RegEntry { participantId: number; compId: string; year: number }
+const allRegs: RegEntry[] = [];
+const regSet = new Set<string>(); // prevent duplicate (participant, competition) pairs
 
 function randDate(year: number): string {
   const m = String(faker.number.int({ min: 1, max: 12 })).padStart(2, '0');
@@ -182,58 +181,56 @@ function randDate(year: number): string {
 }
 
 for (const year of YEARS) {
-  const indComps = allComps.filter(c => c.anio === year && c.grupind === 'IND');
-  const gruComps = allComps.filter(c => c.anio === year && c.grupind === 'GRU');
+  const indComps = allComps.filter(c => c.year === year && c.type === 'IND');
+  const gruComps = allComps.filter(c => c.year === year && c.type === 'GRU');
 
-  for (const { id: personaId, tipo } of allPersonas) {
-    const pool  = tipo === 'IND' ? indComps : gruComps;
+  for (const { id: participantId, type } of allParticipants) {
+    const pool  = type === 'IND' ? indComps : gruComps;
     if (pool.length === 0) continue;
 
     const count  = faker.number.int({ min: 1, max: Math.min(3, pool.length) });
     const picked = faker.helpers.arrayElements(pool, count);
 
     for (const comp of picked) {
-      const key = `${personaId}::${comp.id}`;
-      if (inscSet.has(key)) continue;
-      inscSet.add(key);
+      const key = `${participantId}::${comp.id}`;
+      if (regSet.has(key)) continue;
+      regSet.add(key);
 
-      const seudonimo = tipo === 'IND'
+      const pseudonym = type === 'IND'
         ? `${faker.word.adjective()} ${faker.word.noun()}`
         : null;
-      insertInsc.run(personaId, comp.id, seudonimo, randDate(year), year);
-      allInscs.push({ personaId, compId: comp.id, anio: year });
+      insertReg.run(participantId, comp.id, pseudonym, randDate(year), year);
+      allRegs.push({ participantId, compId: comp.id, year });
     }
   }
 }
-console.log(`✓ ${allInscs.length} registrations seeded`);
+console.log(`✓ ${allRegs.length} registrations seeded`);
 
-// ── 8. Obras (completed years only) ─────────────────────────────────────
-const insertObra = db.prepare(`
-  INSERT INTO obra (fk_particip, mod_particip, puesto, competencia, nom_obra, fecha)
+// ── 8. Works (completed years only) ──────────────────────────────────────
+const insertWork = db.prepare(`
+  INSERT INTO work (participant_id, display_name, placement, competition_id, title, date)
   VALUES (?, ?, ?, ?, ?, ?)
 `);
 
 // Typical Eisteddfod work titles for demo realism
-const OBRA_PREFIXES = ['El', 'La', 'Un', 'Una', 'Vals de', 'Himno a', 'Oda a', 'Balada del', 'Canto al'];
-const OBRA_SUBJECTS = ['Patagonia', 'los Andes', 'Gales', 'la primavera', 'el viento', 'la memoria', 'los sueños', 'la pampa', 'el mar', 'las montañas'];
-const PUESTOS       = ['1', '2', '3', 'mencion', null] as const;
+const TITLE_PREFIXES = ['El', 'La', 'Un', 'Una', 'Vals de', 'Himno a', 'Oda a', 'Balada del', 'Canto al'];
+const TITLE_SUBJECTS = ['Patagonia', 'los Andes', 'Gales', 'la primavera', 'el viento', 'la memoria', 'los sueños', 'la pampa', 'el mar', 'las montañas'];
+const PLACEMENTS     = ['1', '2', '3', 'mencion', null] as const;
 
-function mockObraName(): string {
-  const prefix  = faker.helpers.arrayElement(OBRA_PREFIXES);
-  const subject = faker.helpers.arrayElement(OBRA_SUBJECTS);
-  return `${prefix} ${subject}`;
+function mockTitle(): string {
+  return `${faker.helpers.arrayElement(TITLE_PREFIXES)} ${faker.helpers.arrayElement(TITLE_SUBJECTS)}`;
 }
 
-// Only seed obras for years that have already concluded (all except current year)
+// Only seed works for years that have already concluded (all except current year)
 const pastYears = new Set(YEARS.slice(0, -1));
 
-for (const { personaId, compId, anio } of allInscs) {
-  if (!pastYears.has(anio)) continue;
-  const puesto = faker.helpers.arrayElement(PUESTOS);
-  insertObra.run(personaId, 'Participante', puesto, compId, mockObraName(), randDate(anio));
+for (const { participantId, compId, year } of allRegs) {
+  if (!pastYears.has(year)) continue;
+  const placement = faker.helpers.arrayElement(PLACEMENTS);
+  insertWork.run(participantId, 'Participante', placement, compId, mockTitle(), randDate(year));
 }
 
-const { n: obraCount } = db.prepare('SELECT COUNT(*) as n FROM obra').get() as { n: number };
-console.log(`✓ ${obraCount} works (obras) seeded for years ${[...pastYears].join(', ')}`);
+const { n: workCount } = db.prepare('SELECT COUNT(*) as n FROM work').get() as { n: number };
+console.log(`✓ ${workCount} works seeded for years ${[...pastYears].join(', ')}`);
 
 console.log('\nDemo seed complete — ready to present!');

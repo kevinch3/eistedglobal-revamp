@@ -144,18 +144,18 @@ function extractBlock(sql: string, table: string): string | null {
   return block;
 }
 
-const VALID_IDIOMAS = new Set([
+const VALID_LANGUAGES = new Set([
   'Cymraeg', 'Castellano', 'English', 'Aleman', 'Polaco', 'Frances',
   'Portugues', 'Italiano', 'Otro',
 ]);
 
-function safeIdioma(v: string | number | null): string | null {
+function safeLanguage(v: string | number | null): string | null {
   if (v === null) return null;
   const s = String(v);
-  return VALID_IDIOMAS.has(s) ? s : 'Otro';
+  return VALID_LANGUAGES.has(s) ? s : 'Otro';
 }
 
-function safePuesto(v: string | number | null): string | null {
+function safePlacement(v: string | number | null): string | null {
   if (v === null || v === '') return null;
   const s = String(v).trim();
   return ['1', '2', '3', 'mencion'].includes(s) ? s : null;
@@ -168,110 +168,110 @@ function dateInYear(dateRaw: unknown, year: number): string {
   return `${year}-01-15`;
 }
 
-function ensureCurrentYearInscriptos(db: ReturnType<typeof getDb>): void {
+function ensureCurrentYearRegistrations(db: ReturnType<typeof getDb>): void {
   const currentYear = new Date().getFullYear();
   const currentCountRow = db
-    .prepare('SELECT COUNT(*) as n FROM inscriptos WHERE anio_insc = ?')
+    .prepare('SELECT COUNT(*) as n FROM registration WHERE year = ?')
     .get(currentYear) as { n: number };
 
   if ((currentCountRow?.n ?? 0) > 0) {
-    console.log(`ℹ Current year (${currentYear}) already has inscriptos`);
+    console.log(`ℹ Current year (${currentYear}) already has registrations`);
     return;
   }
 
   const sourceYearRow = db
-    .prepare('SELECT MAX(anio_insc) as y FROM inscriptos WHERE anio_insc < ?')
+    .prepare('SELECT MAX(year) as y FROM registration WHERE year < ?')
     .get(currentYear) as { y: number | null };
 
   if (!sourceYearRow?.y) {
-    console.warn(`⚠ No prior inscriptos found to backfill ${currentYear}`);
-    db.prepare('INSERT OR IGNORE INTO anio (id_anio) VALUES (?)').run(currentYear);
+    console.warn(`⚠ No prior registrations found to backfill ${currentYear}`);
+    db.prepare('INSERT OR IGNORE INTO edition (year) VALUES (?)').run(currentYear);
     return;
   }
 
   const sourceYear = Number(sourceYearRow.y);
-  db.prepare('INSERT OR IGNORE INTO anio (id_anio) VALUES (?)').run(currentYear);
+  db.prepare('INSERT OR IGNORE INTO edition (year) VALUES (?)').run(currentYear);
 
   const sourceComps = db.prepare(`
-    SELECT id_comp, categoria, descripcion, idioma, grupind, rank, preliminar
-    FROM competencia
-    WHERE fk_anio = ?
-    ORDER BY rank ASC, id_comp ASC
+    SELECT id, category_id, description, language, type, rank, preliminary
+    FROM competition
+    WHERE year = ?
+    ORDER BY rank ASC, id ASC
   `).all(sourceYear) as Array<{
-    id_comp: string;
-    categoria: number;
-    descripcion: string | null;
-    idioma: string | null;
-    grupind: 'IND' | 'GRU';
+    id: string;
+    category_id: number;
+    description: string | null;
+    language: string | null;
+    type: 'IND' | 'GRU';
     rank: number | null;
-    preliminar: string | null;
+    preliminary: string | null;
   }>;
 
   if (sourceComps.length === 0) {
-    console.warn(`⚠ Year ${sourceYear} has no competencias to clone into ${currentYear}`);
+    console.warn(`⚠ Year ${sourceYear} has no competitions to clone into ${currentYear}`);
     return;
   }
 
   const compInsert = db.prepare(`
-    INSERT OR IGNORE INTO competencia (id_comp, categoria, descripcion, idioma, fk_anio, grupind, rank, preliminar)
+    INSERT OR IGNORE INTO competition (id, category_id, description, language, year, type, rank, preliminary)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
   `);
 
   const compIdMap = new Map<string, string>();
   for (const comp of sourceComps) {
-    const clonedCompId = `${currentYear}-${comp.id_comp}`;
+    const clonedCompId = `${currentYear}-${comp.id}`;
     compInsert.run(
       clonedCompId,
-      comp.categoria,
-      comp.descripcion,
-      safeIdioma(comp.idioma),
+      comp.category_id,
+      comp.description,
+      safeLanguage(comp.language),
       currentYear,
-      comp.grupind,
+      comp.type,
       comp.rank ?? 0,
-      comp.preliminar,
+      comp.preliminary,
     );
-    compIdMap.set(comp.id_comp, clonedCompId);
+    compIdMap.set(comp.id, clonedCompId);
   }
 
-  const sourceInscriptos = db.prepare(`
-    SELECT fk_persona, fk_comp, seudonimo, fecha_inscrip, baja
-    FROM inscriptos
-    WHERE anio_insc = ?
+  const sourceRegistrations = db.prepare(`
+    SELECT participant_id, competition_id, pseudonym, registered_at, dropped
+    FROM registration
+    WHERE year = ?
   `).all(sourceYear) as Array<{
-    fk_persona: number;
-    fk_comp: string;
-    seudonimo: string | null;
-    fecha_inscrip: string | null;
-    baja: number | null;
+    participant_id: number;
+    competition_id: string;
+    pseudonym: string | null;
+    registered_at: string | null;
+    dropped: number | null;
   }>;
 
-  if (sourceInscriptos.length === 0) {
-    console.warn(`⚠ Year ${sourceYear} has no inscriptos to clone into ${currentYear}`);
+  if (sourceRegistrations.length === 0) {
+    console.warn(`⚠ Year ${sourceYear} has no registrations to clone into ${currentYear}`);
     return;
   }
 
-  const inscInsert = db.prepare(`
-    INSERT INTO inscriptos (fk_persona, fk_comp, seudonimo, fecha_inscrip, anio_insc, baja)
+  const regInsert = db.prepare(`
+    INSERT INTO registration (participant_id, competition_id, pseudonym, registered_at, year, dropped)
     VALUES (?, ?, ?, ?, ?, ?)
   `);
 
   let inserted = 0;
-  for (const row of sourceInscriptos) {
-    const clonedCompId = compIdMap.get(String(row.fk_comp));
+  for (const row of sourceRegistrations) {
+    const clonedCompId = compIdMap.get(String(row.competition_id));
     if (!clonedCompId) continue;
-    inscInsert.run(
-      row.fk_persona,
+    regInsert.run(
+      row.participant_id,
       clonedCompId,
-      row.seudonimo ?? null,
-      dateInYear(row.fecha_inscrip, currentYear),
+      row.pseudonym ?? null,
+      dateInYear(row.registered_at, currentYear),
       currentYear,
-      row.baja ?? 0,
+      row.dropped ?? 0,
     );
     inserted++;
   }
 
   console.log(
-    `✓ Backfilled ${inserted} current-year inscriptos for ${currentYear} (source year: ${sourceYear})`
+    `✓ Backfilled ${inserted} current-year registrations for ${currentYear} (source year: ${sourceYear})`
   );
 }
 
@@ -290,14 +290,14 @@ db.pragma('foreign_keys = OFF');
 // Wrap everything in a single transaction for speed
 const migrate = db.transaction(() => {
 
-  // ── anio ──────────────────────────────────────────────────────────────
+  // ── anio → edition ────────────────────────────────────────────────────
   // Columns: Id_anio, comision, presentadores, coordinadores, jurado, balance, extra, comisionimg, presentadoresimg
   {
     const block = extractBlock(sql, 'anio');
     if (block) {
       const rows = parseInsertValues(block);
       const insert = db.prepare(
-        `INSERT OR IGNORE INTO anio (id_anio, comision, comision_img, presentadores, presentadores_img)
+        `INSERT OR IGNORE INTO edition (year, committee, committee_img, presenters, presenters_img)
          VALUES (?, ?, ?, ?, ?)`
       );
       let count = 0;
@@ -305,75 +305,75 @@ const migrate = db.transaction(() => {
         insert.run(cell(r[0]), cell(r[1]) || null, cell(r[7]) || null, cell(r[2]) || null, cell(r[8]) || null);
         count++;
       }
-      console.log(`✓ anio: ${count} rows`);
+      console.log(`✓ edition: ${count} rows`);
     } else {
       console.warn('⚠ No anio block found');
     }
   }
 
-  // ── categoria ─────────────────────────────────────────────────────────
+  // ── categoria → category ──────────────────────────────────────────────
   // Columns: id_cat, nombre, nomcym, descripcion
   {
     // Clear seeded categories first to avoid conflicts
-    db.prepare('DELETE FROM categoria').run();
+    db.prepare('DELETE FROM category').run();
     const block = extractBlock(sql, 'categoria');
     if (block) {
       const rows = parseInsertValues(block);
       const insert = db.prepare(
-        `INSERT OR IGNORE INTO categoria (id_cat, nombre, nomcym) VALUES (?, ?, ?)`
+        `INSERT OR IGNORE INTO category (id, name, name_welsh) VALUES (?, ?, ?)`
       );
       let count = 0;
       for (const r of rows) {
         insert.run(cell(r[0]), cell(r[1]), cell(r[2]) || null);
         count++;
       }
-      console.log(`✓ categoria: ${count} rows`);
+      console.log(`✓ category: ${count} rows`);
     } else {
       console.warn('⚠ No categoria block found');
     }
   }
 
-  // ── competencia ───────────────────────────────────────────────────────
+  // ── competencia → competition ─────────────────────────────────────────
   // Columns: id_comp, categoria, descripcion, fk_anio, idioma, rank, preliminar, pre_lugar, grupind, extra
   {
     const block = extractBlock(sql, 'competencia');
     if (block) {
       const rows = parseInsertValues(block);
       const insert = db.prepare(
-        `INSERT OR IGNORE INTO competencia (id_comp, categoria, descripcion, idioma, fk_anio, grupind, rank, preliminar)
+        `INSERT OR IGNORE INTO competition (id, category_id, description, language, year, type, rank, preliminary)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
       );
       let count = 0;
       for (const r of rows) {
-        const idComp = String(cell(r[0])); // convert int→text
-        const categoria = cell(r[1]) as number;
-        const descripcion = cell(r[2]);
-        const fkAnio = cell(r[3]) as number;
-        const idioma = safeIdioma(cell(r[4]));
-        const rank = cell(r[5]) ?? 0;
-        const grupind = String(cell(r[8]) || 'IND').trim() || 'IND';
-        const preliminar = String(cell(r[6]) ?? 0);
+        const id         = String(cell(r[0])); // convert int→text
+        const categoryId = cell(r[1]) as number;
+        const description = cell(r[2]);
+        const year       = cell(r[3]) as number;
+        const language   = safeLanguage(cell(r[4]));
+        const rank       = cell(r[5]) ?? 0;
+        const type       = String(cell(r[8]) || 'IND').trim() || 'IND';
+        const preliminary = String(cell(r[6]) ?? 0);
 
-        // Ensure the anio exists (might be from a year with no data row)
-        db.prepare('INSERT OR IGNORE INTO anio (id_anio) VALUES (?)').run(fkAnio);
+        // Ensure the edition exists
+        db.prepare('INSERT OR IGNORE INTO edition (year) VALUES (?)').run(year);
 
-        insert.run(idComp, categoria, descripcion, idioma, fkAnio, grupind, rank, preliminar);
+        insert.run(id, categoryId, description, language, year, type, rank, preliminary);
         count++;
       }
-      console.log(`✓ competencia: ${count} rows`);
+      console.log(`✓ competition: ${count} rows`);
     } else {
       console.warn('⚠ No competencia block found');
     }
   }
 
-  // ── persona ───────────────────────────────────────────────────────────
+  // ── persona → participant ─────────────────────────────────────────────
   // Columns: id_persona, DNI, Nombre, Apellido, direccion, FechaNac, Nacionalidad, Residencia, Email, Telefono, Telefono2, tipo
   {
     const block = extractBlock(sql, 'persona');
     if (block) {
       const rows = parseInsertValues(block);
       const insert = db.prepare(
-        `INSERT OR IGNORE INTO persona (id_persona, nombre, apellido, dni, fecha_nac, nacionalidad, residencia, email, telefono, tipo)
+        `INSERT OR IGNORE INTO participant (id, name, surname, document_id, birth_date, nationality, residence, email, phone, type)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
       );
       let count = 0;
@@ -392,85 +392,85 @@ const migrate = db.transaction(() => {
         );
         count++;
       }
-      console.log(`✓ persona: ${count} rows`);
+      console.log(`✓ participant: ${count} rows`);
     } else {
       console.warn('⚠ No persona block found');
     }
   }
 
-  // ── inscriptos ────────────────────────────────────────────────────────
+  // ── inscriptos → registration ─────────────────────────────────────────
   // Columns: id_inscripto, fk_persona, fk_comp, seudonimo, fechainscrip, anio_insc, baja
   {
     const block = extractBlock(sql, 'inscriptos');
     if (block) {
       const rows = parseInsertValues(block);
       const insert = db.prepare(
-        `INSERT OR IGNORE INTO inscriptos (id_inscripto, fk_persona, fk_comp, seudonimo, fecha_inscrip, anio_insc, baja)
+        `INSERT OR IGNORE INTO registration (id, participant_id, competition_id, pseudonym, registered_at, year, dropped)
          VALUES (?, ?, ?, ?, ?, ?, ?)`
       );
       let count = 0;
       for (const r of rows) {
-        const fkComp = String(cell(r[2])); // int→text
-        insert.run(cell(r[0]), cell(r[1]), fkComp, cell(r[3]), cell(r[4]), cell(r[5]), cell(r[6]) ?? 0);
+        const competitionId = String(cell(r[2])); // int→text
+        insert.run(cell(r[0]), cell(r[1]), competitionId, cell(r[3]), cell(r[4]), cell(r[5]), cell(r[6]) ?? 0);
         count++;
       }
-      console.log(`✓ inscriptos: ${count} rows`);
+      console.log(`✓ registration: ${count} rows`);
     } else {
       console.warn('⚠ No inscriptos block found');
     }
   }
 
-  // ── Obra ──────────────────────────────────────────────────────────────
+  // ── Obra → work ───────────────────────────────────────────────────────
   // Columns: id_obra, fk_particip, puesto, competencia, Nombre, fecha, VIDEOURLS, PHOTOURLS
   {
     const block = extractBlock(sql, 'Obra');
     if (block) {
       const rows = parseInsertValues(block);
       const insert = db.prepare(
-        `INSERT OR IGNORE INTO obra (id_obra, fk_particip, puesto, competencia, nom_obra, fecha, video_urls, photo_urls)
+        `INSERT OR IGNORE INTO work (id, participant_id, placement, competition_id, title, date, video_url, photo_url)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
       );
       let count = 0;
       for (const r of rows) {
-        const competencia = String(cell(r[3])); // int→text
-        const nomObra = cell(r[4]) as string | null;
+        const competitionId = String(cell(r[3])); // int→text
+        const title = cell(r[4]) as string | null;
         insert.run(
           cell(r[0]),
           cell(r[1]),
-          safePuesto(cell(r[2])),
-          competencia,
-          nomObra || '(sin título)',
+          safePlacement(cell(r[2])),
+          competitionId,
+          title || '(sin título)',
           cell(r[5]),
           cell(r[6]) || null,
           cell(r[7]) || null,
         );
         count++;
       }
-      console.log(`✓ obra: ${count} rows`);
+      console.log(`✓ work: ${count} rows`);
     } else {
       console.warn('⚠ No Obra block found');
     }
   }
 
-  // ── subidas ───────────────────────────────────────────────────────────
+  // ── subidas → upload ──────────────────────────────────────────────────
   // Columns: id_subida, archivo, descripcion, id_anio
   {
     const block = extractBlock(sql, 'subidas');
     if (block) {
       const rows = parseInsertValues(block);
       const insert = db.prepare(
-        `INSERT OR IGNORE INTO subida (id, id_anio, archivo, descripcion) VALUES (?, ?, ?, ?)`
+        `INSERT OR IGNORE INTO upload (id, year, filename, description) VALUES (?, ?, ?, ?)`
       );
       let count = 0;
       for (const r of rows) {
-        const idAnio = cell(r[3]) as number;
-        if (idAnio > 0) { // skip id_anio=0 (invalid)
-          db.prepare('INSERT OR IGNORE INTO anio (id_anio) VALUES (?)').run(idAnio);
-          insert.run(cell(r[0]), idAnio, cell(r[1]) || '', cell(r[2]));
+        const year = cell(r[3]) as number;
+        if (year > 0) { // skip year=0 (invalid)
+          db.prepare('INSERT OR IGNORE INTO edition (year) VALUES (?)').run(year);
+          insert.run(cell(r[0]), year, cell(r[1]) || '', cell(r[2]));
           count++;
         }
       }
-      console.log(`✓ subida: ${count} rows`);
+      console.log(`✓ upload: ${count} rows`);
     } else {
       console.warn('⚠ No subidas block found');
     }
@@ -480,7 +480,7 @@ const migrate = db.transaction(() => {
 
 try {
   migrate();
-  ensureCurrentYearInscriptos(db);
+  ensureCurrentYearRegistrations(db);
   db.pragma('foreign_keys = ON');
   console.log('\nMigration complete ✓');
 } catch (err) {

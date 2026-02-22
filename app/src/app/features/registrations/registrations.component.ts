@@ -13,11 +13,11 @@ import { MatCardModule } from '@angular/material/card';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatChipsModule } from '@angular/material/chips';
 import { ApiService } from '../../core/services/api.service';
-import { Anio, Inscripto } from '../../core/models';
-import { InscriptoDialogComponent } from './inscripto-dialog.component';
+import { Edition, Registration } from '../../core/models';
+import { RegistrationDialogComponent } from './registration-dialog.component';
 
 @Component({
-  selector: 'app-inscripciones',
+  selector: 'app-registrations',
   standalone: true,
   imports: [
     FormsModule, MatTableModule, MatPaginatorModule, MatSortModule,
@@ -37,10 +37,10 @@ import { InscriptoDialogComponent } from './inscripto-dialog.component';
         <div class="filters">
           <mat-form-field appearance="outline">
             <mat-label>Año</mat-label>
-            <mat-select [(ngModel)]="anioFilter" (ngModelChange)="load()">
+            <mat-select [(ngModel)]="yearFilter" (ngModelChange)="load()">
               <mat-option value="">Todos</mat-option>
-              @for (a of anios(); track a.id_anio) {
-                <mat-option [value]="a.id_anio">{{ a.id_anio }}</mat-option>
+              @for (e of editions(); track e.year) {
+                <mat-option [value]="e.year">{{ e.year }}</mat-option>
               }
             </mat-select>
           </mat-form-field>
@@ -53,42 +53,42 @@ import { InscriptoDialogComponent } from './inscripto-dialog.component';
 
         <div class="table-scroll">
         <table mat-table [dataSource]="dataSource" matSort class="full-width">
-          <ng-container matColumnDef="persona">
+          <ng-container matColumnDef="participant">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Participante</th>
-            <td mat-cell *matCellDef="let i">
-              {{ i.apellido ? i.apellido + ', ' + i.nombre : i.nombre }}
+            <td mat-cell *matCellDef="let r">
+              {{ r.surname ? r.surname + ', ' + r.name : r.name }}
             </td>
           </ng-container>
 
-          <ng-container matColumnDef="fk_comp">
+          <ng-container matColumnDef="competition_id">
             <th mat-header-cell *matHeaderCellDef>Competencia</th>
-            <td mat-cell *matCellDef="let i"><code>{{ i.fk_comp }}</code></td>
+            <td mat-cell *matCellDef="let r"><code>{{ r.competition_id }}</code></td>
           </ng-container>
 
-          <ng-container matColumnDef="comp_descripcion">
+          <ng-container matColumnDef="comp_description">
             <th mat-header-cell *matHeaderCellDef>Descripción</th>
-            <td mat-cell *matCellDef="let i">{{ i.comp_descripcion || '—' }}</td>
+            <td mat-cell *matCellDef="let r">{{ r.comp_description || '—' }}</td>
           </ng-container>
 
-          <ng-container matColumnDef="seudonimo">
+          <ng-container matColumnDef="pseudonym">
             <th mat-header-cell *matHeaderCellDef>Seudónimo</th>
-            <td mat-cell *matCellDef="let i">{{ i.seudonimo || '—' }}</td>
+            <td mat-cell *matCellDef="let r">{{ r.pseudonym || '—' }}</td>
           </ng-container>
 
-          <ng-container matColumnDef="anio_insc">
+          <ng-container matColumnDef="year">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Año</th>
-            <td mat-cell *matCellDef="let i">{{ i.anio_insc }}</td>
+            <td mat-cell *matCellDef="let r">{{ r.year }}</td>
           </ng-container>
 
-          <ng-container matColumnDef="fecha_inscrip">
+          <ng-container matColumnDef="registered_at">
             <th mat-header-cell *matHeaderCellDef>Fecha inscripción</th>
-            <td mat-cell *matCellDef="let i">{{ i.fecha_inscrip || '—' }}</td>
+            <td mat-cell *matCellDef="let r">{{ r.registered_at || '—' }}</td>
           </ng-container>
 
           <ng-container matColumnDef="actions">
             <th mat-header-cell *matHeaderCellDef>Acciones</th>
-            <td mat-cell *matCellDef="let i">
-              <button mat-icon-button color="warn" (click)="darBaja(i)" title="Dar de baja">
+            <td mat-cell *matCellDef="let r">
+              <button mat-icon-button color="warn" (click)="drop(r)" title="Dar de baja">
                 <mat-icon>person_remove</mat-icon>
               </button>
             </td>
@@ -115,27 +115,27 @@ import { InscriptoDialogComponent } from './inscripto-dialog.component';
     code { background: #f0f0f0; padding: 2px 6px; border-radius: 4px; font-size: 0.85rem; }
   `],
 })
-export class InscripcionesComponent implements OnInit {
+export class RegistrationsComponent implements OnInit {
   private api = inject(ApiService);
   private dialog = inject(MatDialog);
   private snack = inject(MatSnackBar);
 
-  columns = ['persona', 'fk_comp', 'comp_descripcion', 'seudonimo', 'anio_insc', 'fecha_inscrip', 'actions'];
-  dataSource = new MatTableDataSource<Inscripto>();
-  anios = signal<Anio[]>([]);
-  anioFilter = '';
+  columns = ['participant', 'competition_id', 'comp_description', 'pseudonym', 'year', 'registered_at', 'actions'];
+  dataSource = new MatTableDataSource<Registration>();
+  editions = signal<Edition[]>([]);
+  yearFilter = '';
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
   ngOnInit(): void {
-    this.api.getAnios().subscribe((a) => this.anios.set(a));
+    this.api.getEditions().subscribe((e) => this.editions.set(e));
     this.load();
   }
 
   load(): void {
-    const params = this.anioFilter ? { anio: String(this.anioFilter) } : undefined;
-    this.api.getInscriptos(params).subscribe((data) => {
+    const params = this.yearFilter ? { year: String(this.yearFilter) } : undefined;
+    this.api.getRegistrations(params).subscribe((data) => {
       this.dataSource.data = data;
       this.dataSource.paginator = this.paginator;
       this.dataSource.sort = this.sort;
@@ -147,13 +147,13 @@ export class InscripcionesComponent implements OnInit {
   }
 
   openDialog(): void {
-    const ref = this.dialog.open(InscriptoDialogComponent, { width: '520px' });
+    const ref = this.dialog.open(RegistrationDialogComponent, { width: '520px' });
     ref.afterClosed().subscribe((r) => { if (r) this.load(); });
   }
 
-  darBaja(insc: Inscripto): void {
+  drop(reg: Registration): void {
     if (!confirm('¿Dar de baja esta inscripción?')) return;
-    this.api.darBajaInscripto(insc.id_inscripto!).subscribe({
+    this.api.dropRegistration(reg.id!).subscribe({
       next: () => { this.snack.open('Baja registrada', 'OK', { duration: 2000 }); this.load(); },
       error: () => this.snack.open('Error', 'OK', { duration: 3000 }),
     });

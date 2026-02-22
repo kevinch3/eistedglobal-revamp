@@ -13,11 +13,11 @@ import { MatCardModule } from '@angular/material/card';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatChipsModule } from '@angular/material/chips';
 import { ApiService } from '../../core/services/api.service';
-import { Persona } from '../../core/models';
-import { PersonaDialogComponent } from './persona-dialog.component';
+import { Participant } from '../../core/models';
+import { ParticipantDialogComponent } from './participant-dialog.component';
 
 @Component({
-  selector: 'app-personas',
+  selector: 'app-participants',
   standalone: true,
   imports: [
     ReactiveFormsModule,
@@ -28,9 +28,9 @@ import { PersonaDialogComponent } from './persona-dialog.component';
   ],
   template: `
     <div class="page-header">
-      <h1 class="page-title">Personas</h1>
+      <h1 class="page-title">Participantes</h1>
       <button mat-raised-button color="primary" (click)="openDialog()">
-        <mat-icon>person_add</mat-icon> Nueva persona
+        <mat-icon>person_add</mat-icon> Nuevo participante
       </button>
     </div>
 
@@ -40,12 +40,12 @@ import { PersonaDialogComponent } from './persona-dialog.component';
           <mat-form-field appearance="outline">
             <mat-label>Buscar</mat-label>
             <mat-icon matPrefix>search</mat-icon>
-            <input matInput (input)="applyFilter($event)" placeholder="Nombre, apellido, DNI..." />
+            <input matInput (input)="applyFilter($event)" placeholder="Nombre, apellido, documento..." />
           </mat-form-field>
 
           <mat-form-field appearance="outline">
             <mat-label>Tipo</mat-label>
-            <mat-select [(value)]="tipoFilter" (selectionChange)="loadPersonas()">
+            <mat-select [(value)]="typeFilter" (selectionChange)="loadParticipants()">
               <mat-option value="">Todos</mat-option>
               <mat-option value="IND">Individual</mat-option>
               <mat-option value="GRU">Grupo</mat-option>
@@ -55,28 +55,28 @@ import { PersonaDialogComponent } from './persona-dialog.component';
 
         <div class="table-scroll">
         <table mat-table [dataSource]="dataSource" matSort class="full-width">
-          <ng-container matColumnDef="tipo">
+          <ng-container matColumnDef="type">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Tipo</th>
             <td mat-cell *matCellDef="let p">
-              <mat-chip [color]="p.tipo === 'IND' ? 'primary' : 'accent'" highlighted>
-                {{ p.tipo === 'IND' ? 'Individual' : 'Grupo' }}
+              <mat-chip [color]="p.type === 'IND' ? 'primary' : 'accent'" highlighted>
+                {{ p.type === 'IND' ? 'Individual' : 'Grupo' }}
               </mat-chip>
             </td>
           </ng-container>
 
-          <ng-container matColumnDef="nombre">
+          <ng-container matColumnDef="name">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Nombre</th>
-            <td mat-cell *matCellDef="let p">{{ p.apellido ? p.apellido + ', ' + p.nombre : p.nombre }}</td>
+            <td mat-cell *matCellDef="let p">{{ p.surname ? p.surname + ', ' + p.name : p.name }}</td>
           </ng-container>
 
-          <ng-container matColumnDef="dni">
-            <th mat-header-cell *matHeaderCellDef>DNI</th>
-            <td mat-cell *matCellDef="let p">{{ p.dni || '—' }}</td>
+          <ng-container matColumnDef="document_id">
+            <th mat-header-cell *matHeaderCellDef>Documento</th>
+            <td mat-cell *matCellDef="let p">{{ p.document_id || '—' }}</td>
           </ng-container>
 
-          <ng-container matColumnDef="residencia">
+          <ng-container matColumnDef="residence">
             <th mat-header-cell *matHeaderCellDef>Residencia</th>
-            <td mat-cell *matCellDef="let p">{{ p.residencia || '—' }}</td>
+            <td mat-cell *matCellDef="let p">{{ p.residence || '—' }}</td>
           </ng-container>
 
           <ng-container matColumnDef="email">
@@ -84,11 +84,11 @@ import { PersonaDialogComponent } from './persona-dialog.component';
             <td mat-cell *matCellDef="let p">{{ p.email || '—' }}</td>
           </ng-container>
 
-          <ng-container matColumnDef="estado">
+          <ng-container matColumnDef="active">
             <th mat-header-cell *matHeaderCellDef>Estado</th>
             <td mat-cell *matCellDef="let p">
-              <mat-chip [color]="p.activo === 0 ? 'warn' : 'primary'" highlighted>
-                {{ p.activo === 0 ? 'Inactivo' : 'Activo' }}
+              <mat-chip [color]="p.active === 0 ? 'warn' : 'primary'" highlighted>
+                {{ p.active === 0 ? 'Inactivo' : 'Activo' }}
               </mat-chip>
             </td>
           </ng-container>
@@ -128,25 +128,25 @@ import { PersonaDialogComponent } from './persona-dialog.component';
     .no-data { padding: 24px; text-align: center; color: #999; }
   `],
 })
-export class PersonasComponent implements OnInit {
+export class ParticipantsComponent implements OnInit {
   private api = inject(ApiService);
   private dialog = inject(MatDialog);
   private snack = inject(MatSnackBar);
 
-  columns = ['tipo', 'nombre', 'dni', 'residencia', 'email', 'estado', 'actions'];
-  dataSource = new MatTableDataSource<Persona>();
-  tipoFilter = '';
+  columns = ['type', 'name', 'document_id', 'residence', 'email', 'active', 'actions'];
+  dataSource = new MatTableDataSource<Participant>();
+  typeFilter = '';
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
   ngOnInit(): void {
-    this.loadPersonas();
+    this.loadParticipants();
   }
 
-  loadPersonas(): void {
-    const params = this.tipoFilter ? { tipo: this.tipoFilter } : undefined;
-    this.api.getPersonas(params).subscribe((data) => {
+  loadParticipants(): void {
+    const params = this.typeFilter ? { type: this.typeFilter } : undefined;
+    this.api.getParticipants(params).subscribe((data) => {
       this.dataSource.data = data;
       this.dataSource.paginator = this.paginator;
       this.dataSource.sort = this.sort;
@@ -158,22 +158,22 @@ export class PersonasComponent implements OnInit {
     this.dataSource.filter = value.trim().toLowerCase();
   }
 
-  openDialog(persona?: Persona): void {
-    const ref = this.dialog.open(PersonaDialogComponent, {
+  openDialog(participant?: Participant): void {
+    const ref = this.dialog.open(ParticipantDialogComponent, {
       width: '500px',
-      data: persona,
+      data: participant,
     });
     ref.afterClosed().subscribe((result) => {
-      if (result) this.loadPersonas();
+      if (result) this.loadParticipants();
     });
   }
 
-  delete(persona: Persona): void {
-    if (!confirm(`¿Eliminar a ${persona.nombre}?`)) return;
-    this.api.deletePersona(persona.id_persona!).subscribe({
+  delete(participant: Participant): void {
+    if (!confirm(`¿Eliminar a ${participant.name}?`)) return;
+    this.api.deleteParticipant(participant.id!).subscribe({
       next: () => {
-        this.snack.open('Persona eliminada', 'OK', { duration: 3000 });
-        this.loadPersonas();
+        this.snack.open('Participante eliminado', 'OK', { duration: 3000 });
+        this.loadParticipants();
       },
       error: () => this.snack.open('Error al eliminar', 'OK', { duration: 3000 }),
     });

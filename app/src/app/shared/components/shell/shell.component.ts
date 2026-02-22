@@ -46,7 +46,7 @@ import { AuthService } from '../../../core/services/auth.service';
             </button>
           }
           <span class="spacer"></span>
-          <span class="user-name">{{ auth.currentUser()?.nombre }}</span>
+          <span class="user-name">{{ auth.currentUser()?.name }}</span>
           <button mat-icon-button (click)="auth.logout()" title="Cerrar sesión">
             <mat-icon>logout</mat-icon>
           </button>
@@ -82,10 +82,10 @@ export class ShellComponent {
 
   navItems = [
     { path: '/dashboard', icon: 'dashboard', label: 'Inicio' },
-    { path: '/personas', icon: 'people', label: 'Personas' },
-    { path: '/competencias', icon: 'emoji_events', label: 'Competencias' },
-    { path: '/inscripciones', icon: 'how_to_reg', label: 'Inscripciones' },
-    { path: '/obras', icon: 'library_music', label: 'Obras' },
-    { path: '/anios', icon: 'calendar_today', label: 'Ediciones' },
+    { path: '/participants', icon: 'people', label: 'Participantes' },
+    { path: '/competitions', icon: 'emoji_events', label: 'Competencias' },
+    { path: '/registrations', icon: 'how_to_reg', label: 'Inscripciones' },
+    { path: '/works', icon: 'library_music', label: 'Obras' },
+    { path: '/editions', icon: 'calendar_today', label: 'Ediciones' },
   ];
 }

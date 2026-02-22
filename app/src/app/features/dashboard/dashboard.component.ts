@@ -58,22 +58,22 @@ export class DashboardComponent implements OnInit {
   stats = signal<{ label: string; value: number; icon: string; color: string; route: string }[]>([]);
 
   quickLinks = [
-    { icon: 'person_add', label: 'Nueva persona', route: '/personas' },
-    { icon: 'how_to_reg', label: 'Nueva inscripción', route: '/inscripciones' },
-    { icon: 'library_add', label: 'Nueva obra', route: '/obras' },
-    { icon: 'add_circle', label: 'Nueva competencia', route: '/competencias' },
+    { icon: 'person_add', label: 'Nuevo participante', route: '/participants' },
+    { icon: 'how_to_reg', label: 'Nueva inscripción', route: '/registrations' },
+    { icon: 'library_add', label: 'Nueva obra', route: '/works' },
+    { icon: 'add_circle', label: 'Nueva competencia', route: '/competitions' },
   ];
 
   ngOnInit(): void {
-    this.api.getPersonas().subscribe((p) => this.updateStat('Personas', p.length, 'people', '#1565c0', '/personas'));
-    this.api.getCompetencias().subscribe((c) =>
-      this.updateStat('Competencias', c.length, 'emoji_events', '#6a1b9a', '/competencias')
+    this.api.getParticipants().subscribe((p) => this.updateStat('Participantes', p.length, 'people', '#1565c0', '/participants'));
+    this.api.getCompetitions().subscribe((c) =>
+      this.updateStat('Competencias', c.length, 'emoji_events', '#6a1b9a', '/competitions')
     );
-    this.api.getInscriptos().subscribe((i) =>
-      this.updateStat('Inscripciones', i.length, 'how_to_reg', '#2e7d32', '/inscripciones')
+    this.api.getRegistrations().subscribe((r) =>
+      this.updateStat('Inscripciones', r.length, 'how_to_reg', '#2e7d32', '/registrations')
     );
-    this.api.getObras().subscribe((o) =>
-      this.updateStat('Obras', o.length, 'library_music', '#e65100', '/obras')
+    this.api.getWorks().subscribe((w) =>
+      this.updateStat('Obras', w.length, 'library_music', '#e65100', '/works')
     );
   }
 

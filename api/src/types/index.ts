@@ -3,50 +3,72 @@ export interface JwtPayload {
   username: string;
 }
 
-export interface Persona {
-  id_persona?: number;
-  nombre: string;
-  apellido?: string;
-  dni?: string;
-  fecha_nac?: string;
-  nacionalidad?: string;
-  residencia?: string;
+export interface Participant {
+  id?: number;
+  name: string;
+  surname?: string;
+  document_id?: string;
+  birth_date?: string;
+  nationality?: string;
+  residence?: string;
   email?: string;
-  telefono?: string;
-  tipo: 'IND' | 'GRU';
-  activo?: number;
+  phone?: string;
+  type: 'IND' | 'GRU';
+  active?: number;
 }
 
-export interface Competencia {
-  id_comp: string;
-  categoria: number;
-  descripcion?: string;
-  idioma?: string;
-  fk_anio: number;
-  grupind: 'GRU' | 'IND';
-  xt_texto?: string;
+export interface Edition {
+  year: number;
+  committee?: string;
+  committee_img?: string;
+  presenters?: string;
+  presenters_img?: string;
+}
+
+export interface Category {
+  id?: number;
+  name: string;
+  name_welsh?: string;
+}
+
+export interface Competition {
+  id: string;
+  category_id: number;
+  category_name?: string;
+  category_name_welsh?: string;
+  description?: string;
+  language?: string;
+  year: number;
+  type: 'GRU' | 'IND';
+  extra_text?: string;
   rank?: number;
-  preliminar?: string;
+  preliminary?: string;
 }
 
-export interface Inscripto {
-  id_inscripto?: number;
-  fk_persona: number;
-  fk_comp: string;
-  seudonimo?: string;
-  fecha_inscrip?: string;
-  anio_insc: number;
-  baja?: number;
+export interface Registration {
+  id?: number;
+  participant_id: number;
+  name?: string;
+  surname?: string;
+  type?: string;
+  competition_id: string;
+  comp_description?: string;
+  pseudonym?: string;
+  registered_at?: string;
+  year: number;
+  dropped?: number;
 }
 
-export interface Obra {
-  id_obra?: number;
-  fk_particip: number;
-  mod_particip?: string;
-  puesto?: '1' | '2' | '3' | 'mencion';
-  competencia: string;
-  nom_obra: string;
-  fecha?: string;
-  video_urls?: string;
-  photo_urls?: string;
+export interface Work {
+  id?: number;
+  participant_id: number;
+  name?: string;
+  surname?: string;
+  display_name?: string;
+  placement?: '1' | '2' | '3' | 'mencion';
+  competition_id: string;
+  title: string;
+  date?: string;
+  video_url?: string;
+  photo_url?: string;
 }

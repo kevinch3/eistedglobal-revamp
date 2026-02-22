@@ -20,84 +20,81 @@ export function getDb(): Database.Database {
 
 function initSchema(db: Database.Database): void {
   db.exec(`
-    CREATE TABLE IF NOT EXISTS usuario (
+    CREATE TABLE IF NOT EXISTS user (
       id          INTEGER PRIMARY KEY AUTOINCREMENT,
       username    TEXT    NOT NULL UNIQUE,
       password    TEXT    NOT NULL,
-      nombre      TEXT,
+      name        TEXT,
       created_at  TEXT    DEFAULT (datetime('now'))
     );
 
-    CREATE TABLE IF NOT EXISTS anio (
-      id_anio          INTEGER PRIMARY KEY,
-      comision         TEXT,
-      comision_img     TEXT,
-      presentadores    TEXT,
-      presentadores_img TEXT
+    CREATE TABLE IF NOT EXISTS edition (
+      year            INTEGER PRIMARY KEY,
+      committee       TEXT,
+      committee_img   TEXT,
+      presenters      TEXT,
+      presenters_img  TEXT
     );
 
-    CREATE TABLE IF NOT EXISTS categoria (
-      id_cat  INTEGER PRIMARY KEY AUTOINCREMENT,
-      nombre  TEXT NOT NULL,
-      nomcym  TEXT
+    CREATE TABLE IF NOT EXISTS category (
+      id          INTEGER PRIMARY KEY AUTOINCREMENT,
+      name        TEXT    NOT NULL,
+      name_welsh  TEXT
     );
 
-    CREATE TABLE IF NOT EXISTS competencia (
-      id_comp    TEXT    PRIMARY KEY,
-      categoria  INTEGER NOT NULL REFERENCES categoria(id_cat),
-      descripcion TEXT,
-      idioma     TEXT    CHECK(idioma IN ('Cymraeg','Castellano','English','Aleman','Polaco','Frances','Portugues','Italiano','Otro')),
-      fk_anio    INTEGER NOT NULL REFERENCES anio(id_anio),
-      grupind    TEXT    NOT NULL CHECK(grupind IN ('GRU','IND')),
-      xt_texto   TEXT,
-      rank       INTEGER DEFAULT 0,
-      preliminar TEXT
+    CREATE TABLE IF NOT EXISTS competition (
+      id          TEXT    PRIMARY KEY,
+      category_id INTEGER NOT NULL REFERENCES category(id),
+      description TEXT,
+      language    TEXT    CHECK(language IN ('Cymraeg','Castellano','English','Aleman','Polaco','Frances','Portugues','Italiano','Otro')),
+      year        INTEGER NOT NULL REFERENCES edition(year),
+      type        TEXT    NOT NULL CHECK(type IN ('GRU','IND')),
+      extra_text  TEXT,
+      rank        INTEGER DEFAULT 0,
+      preliminary TEXT
     );
 
-    CREATE TABLE IF NOT EXISTS persona (
-      id_persona   INTEGER PRIMARY KEY AUTOINCREMENT,
-      nombre       TEXT    NOT NULL,
-      apellido     TEXT,
-      dni          TEXT,
-      fecha_nac    TEXT,
-      nacionalidad TEXT,
-      residencia   TEXT,
-      email        TEXT,
-      telefono     TEXT,
-      tipo         TEXT    NOT NULL CHECK(tipo IN ('IND','GRU')),
-      activo       INTEGER NOT NULL DEFAULT 1
-    );
-
-    CREATE TABLE IF NOT EXISTS inscriptos (
-      id_inscripto  INTEGER PRIMARY KEY AUTOINCREMENT,
-      fk_persona    INTEGER NOT NULL REFERENCES persona(id_persona),
-      fk_comp       TEXT    NOT NULL REFERENCES competencia(id_comp),
-      seudonimo     TEXT,
-      fecha_inscrip TEXT    DEFAULT (date('now')),
-      anio_insc     INTEGER NOT NULL,
-      baja          INTEGER NOT NULL DEFAULT 0
-    );
-
-    CREATE TABLE IF NOT EXISTS obra (
-      id_obra      INTEGER PRIMARY KEY AUTOINCREMENT,
-      fk_particip  INTEGER NOT NULL REFERENCES persona(id_persona),
-      mod_particip TEXT,
-      puesto       TEXT    CHECK(puesto IN ('1','2','3','mencion',NULL)),
-      competencia  TEXT    NOT NULL REFERENCES competencia(id_comp),
-      nom_obra     TEXT    NOT NULL,
-      fecha        TEXT    DEFAULT (datetime('now')),
-      video_urls   TEXT,
-      photo_urls   TEXT
-    );
-
-    CREATE TABLE IF NOT EXISTS subida (
+    CREATE TABLE IF NOT EXISTS participant (
       id           INTEGER PRIMARY KEY AUTOINCREMENT,
-      id_anio      INTEGER NOT NULL REFERENCES anio(id_anio),
-      archivo      TEXT    NOT NULL,
-      descripcion  TEXT
+      name         TEXT    NOT NULL,
+      surname      TEXT,
+      document_id  TEXT,
+      birth_date   TEXT,
+      nationality  TEXT,
+      residence    TEXT,
+      email        TEXT,
+      phone        TEXT,
+      type         TEXT    NOT NULL CHECK(type IN ('IND','GRU')),
+      active       INTEGER NOT NULL DEFAULT 1
+    );
+
+    CREATE TABLE IF NOT EXISTS registration (
+      id             INTEGER PRIMARY KEY AUTOINCREMENT,
+      participant_id INTEGER NOT NULL REFERENCES participant(id),
+      competition_id TEXT    NOT NULL REFERENCES competition(id),
+      pseudonym      TEXT,
+      registered_at  TEXT    DEFAULT (date('now')),
+      year           INTEGER NOT NULL,
+      dropped        INTEGER NOT NULL DEFAULT 0
+    );
+
+    CREATE TABLE IF NOT EXISTS work (
+      id             INTEGER PRIMARY KEY AUTOINCREMENT,
+      participant_id INTEGER NOT NULL REFERENCES participant(id),
+      display_name   TEXT,
+      placement      TEXT    CHECK(placement IN ('1','2','3','mencion',NULL)),
+      competition_id TEXT    NOT NULL REFERENCES competition(id),
+      title          TEXT    NOT NULL,
+      date           TEXT    DEFAULT (datetime('now')),
+      video_url      TEXT,
+      photo_url      TEXT
+    );
+
+    CREATE TABLE IF NOT EXISTS upload (
+      id          INTEGER PRIMARY KEY AUTOINCREMENT,
+      year        INTEGER NOT NULL REFERENCES edition(year),
+      filename    TEXT    NOT NULL,
+      description TEXT
     );
   `);
-
-  // Incremental migrations — safe to run on existing DBs
-  try { db.exec(`ALTER TABLE persona ADD COLUMN activo INTEGER NOT NULL DEFAULT 1`); } catch { /* already exists */ }
 }

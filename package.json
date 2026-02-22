@@ -6,6 +6,7 @@
     "app": "cd app && ng serve",
     "seed": "cd api && npm run seed",
     "migrate": "cd api && npm run migrate",
+    "seed:demo": "cd api && npm run seed:demo",
     "install:all": "cd api && npm install && cd ../app && npm install"
   }
 }

@@ -9,10 +9,10 @@ import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/ma
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ApiService } from '../../core/services/api.service';
-import { Anio, Competencia, Persona } from '../../core/models';
+import { Edition, Competition, Participant } from '../../core/models';
 
 @Component({
-  selector: 'app-inscripto-dialog',
+  selector: 'app-registration-dialog',
   standalone: true,
   imports: [
     ReactiveFormsModule, MatDialogModule, MatButtonModule,
@@ -27,15 +27,15 @@ import { Anio, Competencia, Persona } from '../../core/models';
 
         <mat-form-field appearance="outline">
           <mat-label>Participante</mat-label>
-          <input matInput [formControl]="personaCtrl"
-                 [matAutocomplete]="personaAuto"
+          <input matInput [formControl]="participantCtrl"
+                 [matAutocomplete]="participantAuto"
                  placeholder="Buscar por nombre..." />
-          <mat-autocomplete #personaAuto="matAutocomplete"
-                            [displayWith]="displayPersona"
-                            (optionSelected)="onPersonaSelected($event)">
-            @for (p of filteredPersonas; track p.id_persona) {
+          <mat-autocomplete #participantAuto="matAutocomplete"
+                            [displayWith]="displayParticipant"
+                            (optionSelected)="onParticipantSelected($event)">
+            @for (p of filteredParticipants; track p.id) {
               <mat-option [value]="p">
-                {{ p.apellido ? p.apellido + ', ' + p.nombre : p.nombre }}
+                {{ p.surname ? p.surname + ', ' + p.name : p.name }}
               </mat-option>
             }
           </mat-autocomplete>
@@ -48,9 +48,9 @@ import { Anio, Competencia, Persona } from '../../core/models';
         @if (showYearSelect) {
           <mat-form-field appearance="outline">
             <mat-label>Año</mat-label>
-            <mat-select formControlName="anio_insc" (selectionChange)="onAnioChange()">
-              @for (a of anios(); track a.id_anio) {
-                <mat-option [value]="a.id_anio">{{ a.id_anio }}</mat-option>
+            <mat-select formControlName="year" (selectionChange)="onYearChange()">
+              @for (e of editions(); track e.year) {
+                <mat-option [value]="e.year">{{ e.year }}</mat-option>
               }
             </mat-select>
           </mat-form-field>
@@ -58,16 +58,16 @@ import { Anio, Competencia, Persona } from '../../core/models';
 
         <mat-form-field appearance="outline">
           <mat-label>Competencia</mat-label>
-          <mat-select formControlName="fk_comp">
-            @for (c of competencias(); track c.id_comp) {
-              <mat-option [value]="c.id_comp">{{ c.id_comp }} – {{ c.descripcion }}</mat-option>
+          <mat-select formControlName="competition_id">
+            @for (c of competitions(); track c.id) {
+              <mat-option [value]="c.id">{{ c.id }} – {{ c.description }}</mat-option>
             }
           </mat-select>
         </mat-form-field>
 
         <mat-form-field appearance="outline">
           <mat-label>Seudónimo (opcional)</mat-label>
-          <input matInput formControlName="seudonimo" />
+          <input matInput formControlName="pseudonym" />
         </mat-form-field>
 
       </form>
@@ -86,77 +86,77 @@ import { Anio, Competencia, Persona } from '../../core/models';
     mat-checkbox { margin: 4px 0 8px; }
   `],
 })
-export class InscriptoDialogComponent implements OnInit {
+export class RegistrationDialogComponent implements OnInit {
   private fb = inject(FormBuilder);
   private api = inject(ApiService);
   private snack = inject(MatSnackBar);
-  private ref = inject(MatDialogRef<InscriptoDialogComponent>);
+  private ref = inject(MatDialogRef<RegistrationDialogComponent>);
 
   saving = signal(false);
-  personas = signal<Persona[]>([]);
-  anios = signal<Anio[]>([]);
-  competencias = signal<Competencia[]>([]);
+  participants = signal<Participant[]>([]);
+  editions = signal<Edition[]>([]);
+  competitions = signal<Competition[]>([]);
 
   readonly currentYear = new Date().getFullYear();
   showYearSelect = false;
 
-  personaCtrl = new FormControl<Persona | string>('');
+  participantCtrl = new FormControl<Participant | string>('');
 
-  get filteredPersonas(): Persona[] {
-    const val = this.personaCtrl.value;
+  get filteredParticipants(): Participant[] {
+    const val = this.participantCtrl.value;
     const search = typeof val === 'string' ? val.toLowerCase() : '';
-    if (!search) return this.personas();
-    return this.personas().filter((p) =>
-      `${p.nombre} ${p.apellido ?? ''}`.toLowerCase().includes(search) ||
-      `${p.apellido ?? ''} ${p.nombre}`.toLowerCase().includes(search)
+    if (!search) return this.participants();
+    return this.participants().filter((p) =>
+      `${p.name} ${p.surname ?? ''}`.toLowerCase().includes(search) ||
+      `${p.surname ?? ''} ${p.name}`.toLowerCase().includes(search)
     );
   }
 
-  displayPersona = (p: Persona | string | null): string => {
+  displayParticipant = (p: Participant | string | null): string => {
     if (!p || typeof p === 'string') return '';
-    return p.apellido ? `${p.apellido}, ${p.nombre}` : p.nombre;
+    return p.surname ? `${p.surname}, ${p.name}` : p.name;
   };
 
   form = this.fb.nonNullable.group({
-    fk_persona: [0, [Validators.required, Validators.min(1)]],
-    fk_comp: ['', Validators.required],
-    seudonimo: [''],
-    anio_insc: [this.currentYear, Validators.required],
+    participant_id: [0, [Validators.required, Validators.min(1)]],
+    competition_id: ['', Validators.required],
+    pseudonym: [''],
+    year: [this.currentYear, Validators.required],
   });
 
   ngOnInit(): void {
-    this.api.getPersonas().subscribe((p) => this.personas.set(p));
-    this.api.getAnios().subscribe((a) => this.anios.set(a));
-    this.loadCompetencias();
+    this.api.getParticipants().subscribe((p) => this.participants.set(p));
+    this.api.getEditions().subscribe((e) => this.editions.set(e));
+    this.loadCompetitions();
   }
 
-  onPersonaSelected(event: MatAutocompleteSelectedEvent): void {
-    const p = event.option.value as Persona;
-    this.form.patchValue({ fk_persona: p.id_persona });
+  onParticipantSelected(event: MatAutocompleteSelectedEvent): void {
+    const p = event.option.value as Participant;
+    this.form.patchValue({ participant_id: p.id });
   }
 
   toggleYearSelect(checked: boolean): void {
     this.showYearSelect = checked;
     if (!checked) {
-      this.form.patchValue({ anio_insc: this.currentYear, fk_comp: '' });
-      this.loadCompetencias();
+      this.form.patchValue({ year: this.currentYear, competition_id: '' });
+      this.loadCompetitions();
     }
   }
 
-  onAnioChange(): void {
-    this.form.patchValue({ fk_comp: '' });
-    this.loadCompetencias();
+  onYearChange(): void {
+    this.form.patchValue({ competition_id: '' });
+    this.loadCompetitions();
   }
 
-  loadCompetencias(): void {
-    const anio = String(this.form.value.anio_insc ?? this.currentYear);
-    this.api.getCompetencias({ anio }).subscribe((c) => this.competencias.set(c));
+  loadCompetitions(): void {
+    const year = String(this.form.value.year ?? this.currentYear);
+    this.api.getCompetitions({ year }).subscribe((c) => this.competitions.set(c));
   }
 
   save(): void {
     if (this.form.invalid) return;
     this.saving.set(true);
-    this.api.createInscripto(this.form.getRawValue() as any).subscribe({
+    this.api.createRegistration(this.form.getRawValue() as any).subscribe({
       next: () => { this.snack.open('Inscripto', 'OK', { duration: 2000 }); this.ref.close(true); },
       error: (err) => { this.snack.open(err.error?.error || 'Error', 'OK', { duration: 3000 }); this.saving.set(false); },
     });

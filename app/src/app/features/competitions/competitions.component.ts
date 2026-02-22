@@ -13,11 +13,11 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatChipsModule } from '@angular/material/chips';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../core/services/api.service';
-import { Anio, Competencia } from '../../core/models';
-import { CompetenciaDialogComponent } from './competencia-dialog.component';
+import { Edition, Competition } from '../../core/models';
+import { CompetitionDialogComponent } from './competition-dialog.component';
 
 @Component({
-  selector: 'app-competencias',
+  selector: 'app-competitions',
   standalone: true,
   imports: [
     FormsModule, MatTableModule, MatPaginatorModule, MatSortModule,
@@ -37,17 +37,17 @@ import { CompetenciaDialogComponent } from './competencia-dialog.component';
         <div class="filters">
           <mat-form-field appearance="outline">
             <mat-label>Edición (año)</mat-label>
-            <mat-select [(ngModel)]="anioFilter" (ngModelChange)="load()">
+            <mat-select [(ngModel)]="yearFilter" (ngModelChange)="load()">
               <mat-option value="">Todas</mat-option>
-              @for (a of anios(); track a.id_anio) {
-                <mat-option [value]="a.id_anio">{{ a.id_anio }}</mat-option>
+              @for (e of editions(); track e.year) {
+                <mat-option [value]="e.year">{{ e.year }}</mat-option>
               }
             </mat-select>
           </mat-form-field>
 
           <mat-form-field appearance="outline">
             <mat-label>Tipo</mat-label>
-            <mat-select [(ngModel)]="grupindFilter" (ngModelChange)="load()">
+            <mat-select [(ngModel)]="typeFilter" (ngModelChange)="load()">
               <mat-option value="">Todos</mat-option>
               <mat-option value="IND">Individual</mat-option>
               <mat-option value="GRU">Grupal</mat-option>
@@ -63,38 +63,38 @@ import { CompetenciaDialogComponent } from './competencia-dialog.component';
 
         <div class="table-scroll">
         <table mat-table [dataSource]="dataSource" matSort class="full-width">
-          <ng-container matColumnDef="id_comp">
+          <ng-container matColumnDef="id">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>ID</th>
-            <td mat-cell *matCellDef="let c"><code>{{ c.id_comp }}</code></td>
+            <td mat-cell *matCellDef="let c"><code>{{ c.id }}</code></td>
           </ng-container>
 
-          <ng-container matColumnDef="descripcion">
+          <ng-container matColumnDef="description">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Descripción</th>
-            <td mat-cell *matCellDef="let c">{{ c.descripcion }}</td>
+            <td mat-cell *matCellDef="let c">{{ c.description }}</td>
           </ng-container>
 
-          <ng-container matColumnDef="cat_nombre">
+          <ng-container matColumnDef="category_name">
             <th mat-header-cell *matHeaderCellDef>Categoría</th>
-            <td mat-cell *matCellDef="let c">{{ c.cat_nombre }}</td>
+            <td mat-cell *matCellDef="let c">{{ c.category_name }}</td>
           </ng-container>
 
-          <ng-container matColumnDef="grupind">
+          <ng-container matColumnDef="type">
             <th mat-header-cell *matHeaderCellDef>Tipo</th>
             <td mat-cell *matCellDef="let c">
-              <mat-chip [color]="c.grupind === 'IND' ? 'primary' : 'accent'" highlighted>
-                {{ c.grupind === 'IND' ? 'Individual' : 'Grupal' }}
+              <mat-chip [color]="c.type === 'IND' ? 'primary' : 'accent'" highlighted>
+                {{ c.type === 'IND' ? 'Individual' : 'Grupal' }}
               </mat-chip>
             </td>
           </ng-container>
 
-          <ng-container matColumnDef="idioma">
+          <ng-container matColumnDef="language">
             <th mat-header-cell *matHeaderCellDef>Idioma</th>
-            <td mat-cell *matCellDef="let c">{{ c.idioma || '—' }}</td>
+            <td mat-cell *matCellDef="let c">{{ c.language || '—' }}</td>
           </ng-container>
 
-          <ng-container matColumnDef="fk_anio">
+          <ng-container matColumnDef="year">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Año</th>
-            <td mat-cell *matCellDef="let c">{{ c.fk_anio }}</td>
+            <td mat-cell *matCellDef="let c">{{ c.year }}</td>
           </ng-container>
 
           <ng-container matColumnDef="actions">
@@ -127,30 +127,30 @@ import { CompetenciaDialogComponent } from './competencia-dialog.component';
     code { background: #f0f0f0; padding: 2px 6px; border-radius: 4px; font-size: 0.85rem; }
   `],
 })
-export class CompetenciasComponent implements OnInit {
+export class CompetitionsComponent implements OnInit {
   private api = inject(ApiService);
   private dialog = inject(MatDialog);
   private snack = inject(MatSnackBar);
 
-  columns = ['id_comp', 'descripcion', 'cat_nombre', 'grupind', 'idioma', 'fk_anio', 'actions'];
-  dataSource = new MatTableDataSource<Competencia>();
-  anios = signal<Anio[]>([]);
-  anioFilter = '';
-  grupindFilter = '';
+  columns = ['id', 'description', 'category_name', 'type', 'language', 'year', 'actions'];
+  dataSource = new MatTableDataSource<Competition>();
+  editions = signal<Edition[]>([]);
+  yearFilter = '';
+  typeFilter = '';
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
   ngOnInit(): void {
-    this.api.getAnios().subscribe((a) => this.anios.set(a));
+    this.api.getEditions().subscribe((e) => this.editions.set(e));
     this.load();
   }
 
   load(): void {
     const params: Record<string, string> = {};
-    if (this.anioFilter) params['anio'] = this.anioFilter;
-    if (this.grupindFilter) params['grupind'] = this.grupindFilter;
-    this.api.getCompetencias(params).subscribe((data) => {
+    if (this.yearFilter) params['year'] = this.yearFilter;
+    if (this.typeFilter) params['type'] = this.typeFilter;
+    this.api.getCompetitions(params).subscribe((data) => {
       this.dataSource.data = data;
       this.dataSource.paginator = this.paginator;
       this.dataSource.sort = this.sort;
@@ -161,14 +161,14 @@ export class CompetenciasComponent implements OnInit {
     this.dataSource.filter = (event.target as HTMLInputElement).value.trim().toLowerCase();
   }
 
-  openDialog(comp?: Competencia): void {
-    const ref = this.dialog.open(CompetenciaDialogComponent, { width: '560px', data: comp });
+  openDialog(comp?: Competition): void {
+    const ref = this.dialog.open(CompetitionDialogComponent, { width: '560px', data: comp });
     ref.afterClosed().subscribe((r) => { if (r) this.load(); });
   }
 
-  delete(comp: Competencia): void {
-    if (!confirm(`¿Eliminar competencia ${comp.id_comp}?`)) return;
-    this.api.deleteCompetencia(comp.id_comp).subscribe({
+  delete(comp: Competition): void {
+    if (!confirm(`¿Eliminar competencia ${comp.id}?`)) return;
+    this.api.deleteCompetition(comp.id).subscribe({
       next: () => { this.snack.open('Eliminada', 'OK', { duration: 2000 }); this.load(); },
       error: () => this.snack.open('Error al eliminar', 'OK', { duration: 3000 }),
     });
