@@ -1,0 +1,28 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: Roboto, 'Helvetica Neue', sans-serif;
+  background: #f5f5f5;
+}
+
+/* Dialogs: prevent overflowing the viewport so the title is never cut off */
+.mat-mdc-dialog-container .mat-mdc-dialog-surface {
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+mat-dialog-content, .mat-mdc-dialog-content {
+  flex: 1 1 auto;
+  overflow: visible!important;
+}
+
+@media (max-width: 599px) {
+  .cdk-overlay-pane {
+    max-width: 95vw !important;
+  }
+}
