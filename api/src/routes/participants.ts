@@ -99,9 +99,10 @@ router.put('/:id', (req: AuthRequest, res: Response) => {
   res.json(db.prepare('SELECT * FROM participant WHERE id = ?').get(req.params.id));
 });
 
-// DELETE /api/participants/:id
+// DELETE /api/participants/:id  (soft-delete: sets active = 0)
 router.delete('/:id', (req: AuthRequest, res: Response) => {
-  const result = getDb().prepare('DELETE FROM participant WHERE id = ?').run(req.params.id);
+  const db = getDb();
+  const result = db.prepare('UPDATE participant SET active = 0 WHERE id = ?').run(req.params.id);
   if (result.changes === 0) {
     res.status(404).json({ error: 'Participant not found' });
     return;
