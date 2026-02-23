@@ -1,0 +1,255 @@
+{
+  "nav": {
+    "home": "Home",
+    "participants": "Participants",
+    "competitions": "Competitions",
+    "registrations": "Registrations",
+    "works": "Works",
+    "editions": "Editions"
+  },
+  "common": {
+    "save": "Save",
+    "saving": "Saving...",
+    "cancel": "Cancel",
+    "create": "Create",
+    "edit": "Edit",
+    "delete": "Delete",
+    "search": "Search",
+    "noResults": "No results",
+    "all": "All",
+    "allFem": "All",
+    "ok": "OK",
+    "type": "Type",
+    "year": "Year",
+    "actions": "Actions",
+    "status": "Status",
+    "individual": "Individual",
+    "group": "Group",
+    "groupAlt": "Group",
+    "active": "Active",
+    "inactive": "Inactive",
+    "error": "Error",
+    "saved": "Saved",
+    "saveError": "Error saving",
+    "deleteError": "Error deleting",
+    "menu": "Menu"
+  },
+  "user": {
+    "logout": "Log out",
+    "language": "Language"
+  },
+  "auth": {
+    "title": "Eisteddfod Global",
+    "subtitle": "Management System",
+    "username": "Username",
+    "password": "Password",
+    "login": "Log in",
+    "loginError": "Login error"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "quickAccess": "Quick access",
+    "newParticipant": "New participant",
+    "newRegistration": "New registration",
+    "newWork": "New work",
+    "newCompetition": "New competition",
+    "participants": "Participants",
+    "competitions": "Competitions",
+    "registrations": "Registrations",
+    "works": "Works"
+  },
+  "participants": {
+    "title": "Participants",
+    "new": "New participant",
+    "searchPlaceholder": "Name, surname, document...",
+    "table": {
+      "type": "Type",
+      "name": "Name",
+      "document": "Document",
+      "residence": "Residence",
+      "email": "Email",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "dialog": {
+      "titleNew": "New participant",
+      "titleEdit": "Edit participant",
+      "type": "Type",
+      "name": "Name",
+      "active": "Active participant",
+      "surname": "Surname",
+      "document": "Document",
+      "birthdate": "Date of birth",
+      "phone": "Phone",
+      "nationality": "Nationality",
+      "residence": "Residence",
+      "email": "Email"
+    },
+    "messages": {
+      "deleted": "Participant deleted",
+      "deleteError": "Error deleting",
+      "saved": "Saved successfully",
+      "saveError": "Error saving",
+      "confirmDelete": "Delete {{name}}?"
+    },
+    "nationalities": {
+      "argentina": "Argentina",
+      "wales": "Wales",
+      "uruguay": "Uruguay",
+      "chile": "Chile",
+      "brazil": "Brazil",
+      "spain": "Spain",
+      "uk": "United Kingdom",
+      "italy": "Italy",
+      "germany": "Germany",
+      "poland": "Poland",
+      "france": "France",
+      "portugal": "Portugal",
+      "other": "Other"
+    }
+  },
+  "competitions": {
+    "title": "Competitions",
+    "new": "New competition",
+    "filters": {
+      "edition": "Edition (year)",
+      "allEditions": "All",
+      "allTypes": "All"
+    },
+    "table": {
+      "id": "ID",
+      "description": "Description",
+      "category": "Category",
+      "type": "Type",
+      "language": "Language",
+      "year": "Year",
+      "actions": "Actions"
+    },
+    "dialog": {
+      "titleNew": "New competition",
+      "titleEdit": "Edit competition",
+      "id": "Competition ID (e.g. CH202601)",
+      "idHint": "Format: CH/JU + Year + No. (e.g. CH202601)",
+      "description": "Description",
+      "category": "Category",
+      "type": "Type",
+      "individual": "Individual",
+      "group": "Group",
+      "language": "Language",
+      "year": "Year",
+      "rank": "Order (rank)"
+    },
+    "messages": {
+      "deleted": "Deleted",
+      "deleteError": "Error deleting",
+      "saved": "Saved",
+      "saveError": "Error",
+      "confirmDelete": "Delete competition {{id}}?"
+    },
+    "languages": {
+      "cymraeg": "Cymraeg",
+      "castellano": "Spanish",
+      "english": "English",
+      "german": "German",
+      "polish": "Polish",
+      "french": "French",
+      "portuguese": "Portuguese",
+      "italian": "Italian",
+      "other": "Other"
+    }
+  },
+  "registrations": {
+    "title": "Registrations",
+    "new": "New registration",
+    "table": {
+      "participant": "Participant",
+      "competition": "Competition",
+      "description": "Description",
+      "pseudonym": "Pseudonym",
+      "year": "Year",
+      "registeredAt": "Registration date",
+      "actions": "Actions"
+    },
+    "dialog": {
+      "title": "New registration",
+      "participant": "Participant",
+      "searchPlaceholder": "Search by name...",
+      "otherEdition": "Other edition (not {{year}})",
+      "year": "Year",
+      "competition": "Competition",
+      "pseudonym": "Pseudonym (optional)",
+      "submit": "Register"
+    },
+    "actions": {
+      "drop": "Withdraw"
+    },
+    "messages": {
+      "dropped": "Withdrawn",
+      "registered": "Registered",
+      "confirmDrop": "Withdraw this registration?",
+      "error": "Error",
+      "saveError": "Error"
+    }
+  },
+  "works": {
+    "title": "Works",
+    "new": "New work",
+    "filters": {
+      "allCompetitions": "All"
+    },
+    "table": {
+      "title": "Work",
+      "participant": "Participant",
+      "competition": "Competition",
+      "placement": "Placement",
+      "actions": "Actions"
+    },
+    "dialog": {
+      "titleNew": "New work",
+      "titleEdit": "Edit work",
+      "title": "Work title",
+      "participant": "Participant",
+      "searchPlaceholder": "Search by name...",
+      "competition": "Competition",
+      "displayName": "Pseudonym / Display name",
+      "placement": "Placement",
+      "noPlacement": "Not assigned",
+      "place1": "1st place",
+      "place2": "2nd place",
+      "place3": "3rd place",
+      "mention": "Honourable mention",
+      "youtube": "YouTube video (URL or ID)",
+      "youtubePlaceholder": "e.g. https://youtube.com/watch?v=dQw4w9WgXcQ or dQw4w9WgXcQ"
+    },
+    "placements": {
+      "mencion": "Honourable mention",
+      "place": "{{n}}{{suffix}} place"
+    },
+    "messages": {
+      "deleted": "Deleted",
+      "deleteError": "Error",
+      "saved": "Saved",
+      "saveError": "Error",
+      "confirmDelete": "Delete \"{{title}}\"?"
+    }
+  },
+  "editions": {
+    "title": "Editions",
+    "new": "New edition",
+    "panel": "Edition {{year}}",
+    "form": {
+      "year": "Year",
+      "yearPlaceholder": "2027",
+      "committee": "Committee",
+      "committeeImg": "Committee image URL",
+      "presenters": "Presenters",
+      "presentersImg": "Presenters image URL"
+    },
+    "messages": {
+      "created": "Edition created",
+      "saved": "Saved",
+      "saveError": "Error saving",
+      "error": "Error"
+    }
+  }
+}

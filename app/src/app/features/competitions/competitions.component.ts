@@ -12,6 +12,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatChipsModule } from '@angular/material/chips';
 import { FormsModule } from '@angular/forms';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ApiService } from '../../core/services/api.service';
 import { Edition, Competition } from '../../core/models';
 import { CompetitionDialogComponent } from './competition-dialog.component';
@@ -23,12 +24,13 @@ import { CompetitionDialogComponent } from './competition-dialog.component';
     FormsModule, MatTableModule, MatPaginatorModule, MatSortModule,
     MatButtonModule, MatIconModule, MatDialogModule, MatFormFieldModule,
     MatInputModule, MatSelectModule, MatCardModule, MatSnackBarModule, MatChipsModule,
+    TranslatePipe,
   ],
   template: `
     <div class="page-header">
-      <h1 class="page-title">Competencias</h1>
+      <h1 class="page-title">{{ 'competitions.title' | translate }}</h1>
       <button mat-raised-button color="primary" (click)="openDialog()">
-        <mat-icon>add</mat-icon> Nueva competencia
+        <mat-icon>add</mat-icon> {{ 'competitions.new' | translate }}
       </button>
     </div>
 
@@ -36,9 +38,9 @@ import { CompetitionDialogComponent } from './competition-dialog.component';
       <mat-card-content>
         <div class="filters">
           <mat-form-field appearance="outline">
-            <mat-label>Edición (año)</mat-label>
+            <mat-label>{{ 'competitions.filters.edition' | translate }}</mat-label>
             <mat-select [(ngModel)]="yearFilter" (ngModelChange)="load()">
-              <mat-option value="">Todas</mat-option>
+              <mat-option value="">{{ 'competitions.filters.allEditions' | translate }}</mat-option>
               @for (e of editions(); track e.year) {
                 <mat-option [value]="e.year">{{ e.year }}</mat-option>
               }
@@ -46,16 +48,16 @@ import { CompetitionDialogComponent } from './competition-dialog.component';
           </mat-form-field>
 
           <mat-form-field appearance="outline">
-            <mat-label>Tipo</mat-label>
+            <mat-label>{{ 'common.type' | translate }}</mat-label>
             <mat-select [(ngModel)]="typeFilter" (ngModelChange)="load()">
-              <mat-option value="">Todos</mat-option>
-              <mat-option value="IND">Individual</mat-option>
-              <mat-option value="GRU">Grupal</mat-option>
+              <mat-option value="">{{ 'competitions.filters.allTypes' | translate }}</mat-option>
+              <mat-option value="IND">{{ 'common.individual' | translate }}</mat-option>
+              <mat-option value="GRU">{{ 'common.groupAlt' | translate }}</mat-option>
             </mat-select>
           </mat-form-field>
 
           <mat-form-field appearance="outline">
-            <mat-label>Buscar</mat-label>
+            <mat-label>{{ 'common.search' | translate }}</mat-label>
             <mat-icon matPrefix>search</mat-icon>
             <input matInput (input)="applyFilter($event)" />
           </mat-form-field>
@@ -64,51 +66,51 @@ import { CompetitionDialogComponent } from './competition-dialog.component';
         <div class="table-scroll">
         <table mat-table [dataSource]="dataSource" matSort class="full-width">
           <ng-container matColumnDef="id">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>ID</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'competitions.table.id' | translate }}</th>
             <td mat-cell *matCellDef="let c"><code>{{ c.id }}</code></td>
           </ng-container>
 
           <ng-container matColumnDef="description">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Descripción</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'competitions.table.description' | translate }}</th>
             <td mat-cell *matCellDef="let c">{{ c.description }}</td>
           </ng-container>
 
           <ng-container matColumnDef="category_name">
-            <th mat-header-cell *matHeaderCellDef>Categoría</th>
+            <th mat-header-cell *matHeaderCellDef>{{ 'competitions.table.category' | translate }}</th>
             <td mat-cell *matCellDef="let c">{{ c.category_name }}</td>
           </ng-container>
 
           <ng-container matColumnDef="type">
-            <th mat-header-cell *matHeaderCellDef>Tipo</th>
+            <th mat-header-cell *matHeaderCellDef>{{ 'competitions.table.type' | translate }}</th>
             <td mat-cell *matCellDef="let c">
               <mat-chip [color]="c.type === 'IND' ? 'primary' : 'accent'" highlighted>
-                {{ c.type === 'IND' ? 'Individual' : 'Grupal' }}
+                {{ (c.type === 'IND' ? 'common.individual' : 'common.groupAlt') | translate }}
               </mat-chip>
             </td>
           </ng-container>
 
           <ng-container matColumnDef="language">
-            <th mat-header-cell *matHeaderCellDef>Idioma</th>
+            <th mat-header-cell *matHeaderCellDef>{{ 'competitions.table.language' | translate }}</th>
             <td mat-cell *matCellDef="let c">{{ c.language || '—' }}</td>
           </ng-container>
 
           <ng-container matColumnDef="year">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Año</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'competitions.table.year' | translate }}</th>
             <td mat-cell *matCellDef="let c">{{ c.year }}</td>
           </ng-container>
 
           <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef>Acciones</th>
+            <th mat-header-cell *matHeaderCellDef>{{ 'competitions.table.actions' | translate }}</th>
             <td mat-cell *matCellDef="let c">
-              <button mat-icon-button color="primary" (click)="openDialog(c)"><mat-icon>edit</mat-icon></button>
-              <button mat-icon-button color="warn" (click)="delete(c)"><mat-icon>delete</mat-icon></button>
+              <button mat-icon-button color="primary" (click)="openDialog(c)" [title]="'common.edit' | translate"><mat-icon>edit</mat-icon></button>
+              <button mat-icon-button color="warn" (click)="delete(c)" [title]="'common.delete' | translate"><mat-icon>delete</mat-icon></button>
             </td>
           </ng-container>
 
           <tr mat-header-row *matHeaderRowDef="columns"></tr>
           <tr mat-row *matRowDef="let row; columns: columns"></tr>
           <tr class="mat-row" *matNoDataRow>
-            <td class="mat-cell no-data" [attr.colspan]="columns.length">Sin resultados</td>
+            <td class="mat-cell no-data" [attr.colspan]="columns.length">{{ 'common.noResults' | translate }}</td>
           </tr>
         </table>
         </div>
@@ -131,6 +133,7 @@ export class CompetitionsComponent implements OnInit {
   private api = inject(ApiService);
   private dialog = inject(MatDialog);
   private snack = inject(MatSnackBar);
+  private translate = inject(TranslateService);
 
   columns = ['id', 'description', 'category_name', 'type', 'language', 'year', 'actions'];
   dataSource = new MatTableDataSource<Competition>();
@@ -167,10 +170,10 @@ export class CompetitionsComponent implements OnInit {
   }
 
   delete(comp: Competition): void {
-    if (!confirm(`¿Eliminar competencia ${comp.id}?`)) return;
+    if (!confirm(this.translate.instant('competitions.messages.confirmDelete', { id: comp.id }))) return;
     this.api.deleteCompetition(comp.id).subscribe({
-      next: () => { this.snack.open('Eliminada', 'OK', { duration: 2000 }); this.load(); },
-      error: () => this.snack.open('Error al eliminar', 'OK', { duration: 3000 }),
+      next: () => { this.snack.open(this.translate.instant('competitions.messages.deleted'), this.translate.instant('common.ok'), { duration: 2000 }); this.load(); },
+      error: () => this.snack.open(this.translate.instant('competitions.messages.deleteError'), this.translate.instant('common.ok'), { duration: 3000 }),
     });
   }
 }

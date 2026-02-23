@@ -7,6 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ApiService } from '../../core/services/api.service';
 import { Competition, Work, Participant } from '../../core/models';
 
@@ -17,22 +18,23 @@ import { Competition, Work, Participant } from '../../core/models';
     ReactiveFormsModule, MatDialogModule, MatButtonModule,
     MatFormFieldModule, MatInputModule, MatSelectModule,
     MatAutocompleteModule, MatSnackBarModule,
+    TranslatePipe,
   ],
   template: `
-    <h2 mat-dialog-title>{{ data ? 'Editar' : 'Nueva' }} obra</h2>
+    <h2 mat-dialog-title>{{ (data ? 'works.dialog.titleEdit' : 'works.dialog.titleNew') | translate }}</h2>
 
     <mat-dialog-content>
       <form [formGroup]="form" class="form-grid">
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Título de la obra</mat-label>
+          <mat-label>{{ 'works.dialog.title' | translate }}</mat-label>
           <input matInput formControlName="title" />
         </mat-form-field>
 
         <mat-form-field appearance="outline">
-          <mat-label>Participante</mat-label>
+          <mat-label>{{ 'works.dialog.participant' | translate }}</mat-label>
           <input matInput [formControl]="participantCtrl"
                  [matAutocomplete]="participantAuto"
-                 placeholder="Buscar por nombre..." />
+                 [placeholder]="'works.dialog.searchPlaceholder' | translate" />
           <mat-autocomplete #participantAuto="matAutocomplete"
                             [displayWith]="displayParticipant"
                             (optionSelected)="onParticipantSelected($event)">
@@ -45,7 +47,7 @@ import { Competition, Work, Participant } from '../../core/models';
         </mat-form-field>
 
         <mat-form-field appearance="outline">
-          <mat-label>Competencia</mat-label>
+          <mat-label>{{ 'works.dialog.competition' | translate }}</mat-label>
           <mat-select formControlName="competition_id">
             @for (c of competitions(); track c.id) {
               <mat-option [value]="c.id">{{ c.id }}</mat-option>
@@ -54,25 +56,25 @@ import { Competition, Work, Participant } from '../../core/models';
         </mat-form-field>
 
         <mat-form-field appearance="outline">
-          <mat-label>Seudónimo / Nombre a mostrar</mat-label>
+          <mat-label>{{ 'works.dialog.displayName' | translate }}</mat-label>
           <input matInput formControlName="display_name" />
         </mat-form-field>
 
         <mat-form-field appearance="outline">
-          <mat-label>Puesto</mat-label>
+          <mat-label>{{ 'works.dialog.placement' | translate }}</mat-label>
           <mat-select formControlName="placement">
-            <mat-option value="">Sin asignar</mat-option>
-            <mat-option value="1">1° lugar</mat-option>
-            <mat-option value="2">2° lugar</mat-option>
-            <mat-option value="3">3° lugar</mat-option>
-            <mat-option value="mencion">Mención</mat-option>
+            <mat-option value="">{{ 'works.dialog.noPlacement' | translate }}</mat-option>
+            <mat-option value="1">{{ 'works.dialog.place1' | translate }}</mat-option>
+            <mat-option value="2">{{ 'works.dialog.place2' | translate }}</mat-option>
+            <mat-option value="3">{{ 'works.dialog.place3' | translate }}</mat-option>
+            <mat-option value="mencion">{{ 'works.dialog.mention' | translate }}</mat-option>
           </mat-select>
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Video YouTube (URL o ID)</mat-label>
+          <mat-label>{{ 'works.dialog.youtube' | translate }}</mat-label>
           <input matInput formControlName="video_url"
-                 placeholder="ej. https://youtube.com/watch?v=dQw4w9WgXcQ o dQw4w9WgXcQ"
+                 [placeholder]="'works.dialog.youtubePlaceholder' | translate"
                  (input)="normalizeVideoUrl($event)" />
           @if (form.get('video_url')?.value) {
             <mat-hint>
@@ -84,9 +86,9 @@ import { Competition, Work, Participant } from '../../core/models';
     </mat-dialog-content>
 
     <mat-dialog-actions align="end">
-      <button mat-button mat-dialog-close>Cancelar</button>
+      <button mat-button mat-dialog-close>{{ 'common.cancel' | translate }}</button>
       <button mat-raised-button color="primary" (click)="save()" [disabled]="form.invalid || saving()">
-        {{ saving() ? 'Guardando...' : 'Guardar' }}
+        {{ (saving() ? 'common.saving' : 'common.save') | translate }}
       </button>
     </mat-dialog-actions>
   `,
@@ -105,6 +107,7 @@ export class WorkDialogComponent implements OnInit {
   private api = inject(ApiService);
   private snack = inject(MatSnackBar);
   private ref = inject(MatDialogRef<WorkDialogComponent>);
+  private translate = inject(TranslateService);
 
   saving = signal(false);
   participants = signal<Participant[]>([]);
@@ -179,8 +182,8 @@ export class WorkDialogComponent implements OnInit {
       : this.api.createWork(payload);
 
     op.subscribe({
-      next: () => { this.snack.open('Guardado', 'OK', { duration: 2000 }); this.ref.close(true); },
-      error: (err) => { this.snack.open(err.error?.error || 'Error', 'OK', { duration: 3000 }); this.saving.set(false); },
+      next: () => { this.snack.open(this.translate.instant('works.messages.saved'), this.translate.instant('common.ok'), { duration: 2000 }); this.ref.close(true); },
+      error: (err) => { this.snack.open(err.error?.error || this.translate.instant('works.messages.saveError'), this.translate.instant('common.ok'), { duration: 3000 }); this.saving.set(false); },
     });
   }
 }

@@ -12,6 +12,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatCardModule } from '@angular/material/card';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatChipsModule } from '@angular/material/chips';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ApiService } from '../../core/services/api.service';
 import { Participant } from '../../core/models';
 import { ParticipantDialogComponent } from './participant-dialog.component';
@@ -25,12 +26,13 @@ import { ParticipantDialogComponent } from './participant-dialog.component';
     MatButtonModule, MatIconModule, MatDialogModule,
     MatFormFieldModule, MatInputModule, MatSelectModule,
     MatCardModule, MatSnackBarModule, MatChipsModule,
+    TranslatePipe,
   ],
   template: `
     <div class="page-header">
-      <h1 class="page-title">Participantes</h1>
+      <h1 class="page-title">{{ 'participants.title' | translate }}</h1>
       <button mat-raised-button color="primary" (click)="openDialog()">
-        <mat-icon>person_add</mat-icon> Nuevo participante
+        <mat-icon>person_add</mat-icon> {{ 'participants.new' | translate }}
       </button>
     </div>
 
@@ -38,17 +40,17 @@ import { ParticipantDialogComponent } from './participant-dialog.component';
       <mat-card-content>
         <div class="filters">
           <mat-form-field appearance="outline">
-            <mat-label>Buscar</mat-label>
+            <mat-label>{{ 'common.search' | translate }}</mat-label>
             <mat-icon matPrefix>search</mat-icon>
-            <input matInput (input)="applyFilter($event)" placeholder="Nombre, apellido, documento..." />
+            <input matInput (input)="applyFilter($event)" [placeholder]="'participants.searchPlaceholder' | translate" />
           </mat-form-field>
 
           <mat-form-field appearance="outline">
-            <mat-label>Tipo</mat-label>
+            <mat-label>{{ 'common.type' | translate }}</mat-label>
             <mat-select [(value)]="typeFilter" (selectionChange)="loadParticipants()">
-              <mat-option value="">Todos</mat-option>
-              <mat-option value="IND">Individual</mat-option>
-              <mat-option value="GRU">Grupo</mat-option>
+              <mat-option value="">{{ 'common.all' | translate }}</mat-option>
+              <mat-option value="IND">{{ 'common.individual' | translate }}</mat-option>
+              <mat-option value="GRU">{{ 'common.group' | translate }}</mat-option>
             </mat-select>
           </mat-form-field>
         </div>
@@ -56,50 +58,50 @@ import { ParticipantDialogComponent } from './participant-dialog.component';
         <div class="table-scroll">
         <table mat-table [dataSource]="dataSource" matSort class="full-width">
           <ng-container matColumnDef="type">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Tipo</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'participants.table.type' | translate }}</th>
             <td mat-cell *matCellDef="let p">
               <mat-chip [color]="p.type === 'IND' ? 'primary' : 'accent'" highlighted>
-                {{ p.type === 'IND' ? 'Individual' : 'Grupo' }}
+                {{ (p.type === 'IND' ? 'common.individual' : 'common.group') | translate }}
               </mat-chip>
             </td>
           </ng-container>
 
           <ng-container matColumnDef="name">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Nombre</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'participants.table.name' | translate }}</th>
             <td mat-cell *matCellDef="let p">{{ p.surname ? p.surname + ', ' + p.name : p.name }}</td>
           </ng-container>
 
           <ng-container matColumnDef="document_id">
-            <th mat-header-cell *matHeaderCellDef>Documento</th>
+            <th mat-header-cell *matHeaderCellDef>{{ 'participants.table.document' | translate }}</th>
             <td mat-cell *matCellDef="let p">{{ p.document_id || '—' }}</td>
           </ng-container>
 
           <ng-container matColumnDef="residence">
-            <th mat-header-cell *matHeaderCellDef>Residencia</th>
+            <th mat-header-cell *matHeaderCellDef>{{ 'participants.table.residence' | translate }}</th>
             <td mat-cell *matCellDef="let p">{{ p.residence || '—' }}</td>
           </ng-container>
 
           <ng-container matColumnDef="email">
-            <th mat-header-cell *matHeaderCellDef>Email</th>
+            <th mat-header-cell *matHeaderCellDef>{{ 'participants.table.email' | translate }}</th>
             <td mat-cell *matCellDef="let p">{{ p.email || '—' }}</td>
           </ng-container>
 
           <ng-container matColumnDef="active">
-            <th mat-header-cell *matHeaderCellDef>Estado</th>
+            <th mat-header-cell *matHeaderCellDef>{{ 'participants.table.status' | translate }}</th>
             <td mat-cell *matCellDef="let p">
               <mat-chip [color]="p.active === 0 ? 'warn' : 'primary'" highlighted>
-                {{ p.active === 0 ? 'Inactivo' : 'Activo' }}
+                {{ (p.active === 0 ? 'common.inactive' : 'common.active') | translate }}
               </mat-chip>
             </td>
           </ng-container>
 
           <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef>Acciones</th>
+            <th mat-header-cell *matHeaderCellDef>{{ 'participants.table.actions' | translate }}</th>
             <td mat-cell *matCellDef="let p">
-              <button mat-icon-button color="primary" (click)="openDialog(p)" title="Editar">
+              <button mat-icon-button color="primary" (click)="openDialog(p)" [title]="'common.edit' | translate">
                 <mat-icon>edit</mat-icon>
               </button>
-              <button mat-icon-button color="warn" (click)="delete(p)" title="Eliminar">
+              <button mat-icon-button color="warn" (click)="delete(p)" [title]="'common.delete' | translate">
                 <mat-icon>delete</mat-icon>
               </button>
             </td>
@@ -109,7 +111,7 @@ import { ParticipantDialogComponent } from './participant-dialog.component';
           <tr mat-row *matRowDef="let row; columns: columns"></tr>
 
           <tr class="mat-row" *matNoDataRow>
-            <td class="mat-cell no-data" [attr.colspan]="columns.length">Sin resultados</td>
+            <td class="mat-cell no-data" [attr.colspan]="columns.length">{{ 'common.noResults' | translate }}</td>
           </tr>
         </table>
         </div>
@@ -132,6 +134,7 @@ export class ParticipantsComponent implements OnInit {
   private api = inject(ApiService);
   private dialog = inject(MatDialog);
   private snack = inject(MatSnackBar);
+  private translate = inject(TranslateService);
 
   columns = ['type', 'name', 'document_id', 'residence', 'email', 'active', 'actions'];
   dataSource = new MatTableDataSource<Participant>();
@@ -169,13 +172,14 @@ export class ParticipantsComponent implements OnInit {
   }
 
   delete(participant: Participant): void {
-    if (!confirm(`¿Eliminar a ${participant.name}?`)) return;
+    const msg = this.translate.instant('participants.messages.confirmDelete', { name: participant.name });
+    if (!confirm(msg)) return;
     this.api.deleteParticipant(participant.id!).subscribe({
       next: () => {
-        this.snack.open('Participante eliminado', 'OK', { duration: 3000 });
+        this.snack.open(this.translate.instant('participants.messages.deleted'), this.translate.instant('common.ok'), { duration: 3000 });
         this.loadParticipants();
       },
-      error: () => this.snack.open('Error al eliminar', 'OK', { duration: 3000 }),
+      error: () => this.snack.open(this.translate.instant('participants.messages.deleteError'), this.translate.instant('common.ok'), { duration: 3000 }),
     });
   }
 }

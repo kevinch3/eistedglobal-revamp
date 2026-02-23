@@ -6,10 +6,21 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ApiService } from '../../core/services/api.service';
 import { Edition, Category, Competition } from '../../core/models';
 
-const LANGUAGES = ['Cymraeg', 'Castellano', 'English', 'Aleman', 'Polaco', 'Frances', 'Portugues', 'Italiano', 'Otro'];
+const LANGUAGES: { value: string; key: string }[] = [
+  { value: 'Cymraeg',   key: 'competitions.languages.cymraeg' },
+  { value: 'Castellano', key: 'competitions.languages.castellano' },
+  { value: 'English',   key: 'competitions.languages.english' },
+  { value: 'Aleman',    key: 'competitions.languages.german' },
+  { value: 'Polaco',    key: 'competitions.languages.polish' },
+  { value: 'Frances',   key: 'competitions.languages.french' },
+  { value: 'Portugues', key: 'competitions.languages.portuguese' },
+  { value: 'Italiano',  key: 'competitions.languages.italian' },
+  { value: 'Otro',      key: 'competitions.languages.other' },
+];
 
 @Component({
   selector: 'app-competition-dialog',
@@ -17,25 +28,26 @@ const LANGUAGES = ['Cymraeg', 'Castellano', 'English', 'Aleman', 'Polaco', 'Fran
   imports: [
     ReactiveFormsModule, MatDialogModule, MatButtonModule,
     MatFormFieldModule, MatInputModule, MatSelectModule, MatSnackBarModule,
+    TranslatePipe,
   ],
   template: `
-    <h2 mat-dialog-title>{{ data ? 'Editar' : 'Nueva' }} competencia</h2>
+    <h2 mat-dialog-title>{{ (data ? 'competitions.dialog.titleEdit' : 'competitions.dialog.titleNew') | translate }}</h2>
 
     <mat-dialog-content>
       <form [formGroup]="form" class="form-grid">
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>ID competencia (ej. CH202601)</mat-label>
+          <mat-label>{{ 'competitions.dialog.id' | translate }}</mat-label>
           <input matInput formControlName="id" [readonly]="!!data" />
-          @if (!data) { <mat-hint>Formato: CH/JU + Año + Nro (ej. CH202601)</mat-hint> }
+          @if (!data) { <mat-hint>{{ 'competitions.dialog.idHint' | translate }}</mat-hint> }
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Descripción</mat-label>
+          <mat-label>{{ 'competitions.dialog.description' | translate }}</mat-label>
           <textarea matInput formControlName="description" rows="3"></textarea>
         </mat-form-field>
 
         <mat-form-field appearance="outline">
-          <mat-label>Categoría</mat-label>
+          <mat-label>{{ 'competitions.dialog.category' | translate }}</mat-label>
           <mat-select formControlName="category_id">
             @for (c of categories(); track c.id) {
               <mat-option [value]="c.id">{{ c.name }}</mat-option>
@@ -44,24 +56,24 @@ const LANGUAGES = ['Cymraeg', 'Castellano', 'English', 'Aleman', 'Polaco', 'Fran
         </mat-form-field>
 
         <mat-form-field appearance="outline">
-          <mat-label>Tipo</mat-label>
+          <mat-label>{{ 'competitions.dialog.type' | translate }}</mat-label>
           <mat-select formControlName="type">
-            <mat-option value="IND">Individual</mat-option>
-            <mat-option value="GRU">Grupal</mat-option>
+            <mat-option value="IND">{{ 'competitions.dialog.individual' | translate }}</mat-option>
+            <mat-option value="GRU">{{ 'competitions.dialog.group' | translate }}</mat-option>
           </mat-select>
         </mat-form-field>
 
         <mat-form-field appearance="outline">
-          <mat-label>Idioma</mat-label>
+          <mat-label>{{ 'competitions.dialog.language' | translate }}</mat-label>
           <mat-select formControlName="language">
-            @for (l of languages; track l) {
-              <mat-option [value]="l">{{ l }}</mat-option>
+            @for (l of languages; track l.value) {
+              <mat-option [value]="l.value">{{ l.key | translate }}</mat-option>
             }
           </mat-select>
         </mat-form-field>
 
         <mat-form-field appearance="outline">
-          <mat-label>Año</mat-label>
+          <mat-label>{{ 'competitions.dialog.year' | translate }}</mat-label>
           <mat-select formControlName="year">
             @for (e of editions(); track e.year) {
               <mat-option [value]="e.year">{{ e.year }}</mat-option>
@@ -70,16 +82,16 @@ const LANGUAGES = ['Cymraeg', 'Castellano', 'English', 'Aleman', 'Polaco', 'Fran
         </mat-form-field>
 
         <mat-form-field appearance="outline">
-          <mat-label>Orden (rank)</mat-label>
+          <mat-label>{{ 'competitions.dialog.rank' | translate }}</mat-label>
           <input matInput type="number" formControlName="rank" />
         </mat-form-field>
       </form>
     </mat-dialog-content>
 
     <mat-dialog-actions align="end">
-      <button mat-button mat-dialog-close>Cancelar</button>
+      <button mat-button mat-dialog-close>{{ 'common.cancel' | translate }}</button>
       <button mat-raised-button color="primary" (click)="save()" [disabled]="form.invalid || saving()">
-        {{ saving() ? 'Guardando...' : 'Guardar' }}
+        {{ (saving() ? 'common.saving' : 'common.save') | translate }}
       </button>
     </mat-dialog-actions>
   `,
@@ -98,6 +110,7 @@ export class CompetitionDialogComponent implements OnInit {
   private api = inject(ApiService);
   private snack = inject(MatSnackBar);
   private ref = inject(MatDialogRef<CompetitionDialogComponent>);
+  private translate = inject(TranslateService);
 
   saving = signal(false);
   categories = signal<Category[]>([]);
@@ -131,8 +144,8 @@ export class CompetitionDialogComponent implements OnInit {
       : this.api.createCompetition(payload);
 
     op.subscribe({
-      next: () => { this.snack.open('Guardado', 'OK', { duration: 2000 }); this.ref.close(true); },
-      error: (err) => { this.snack.open(err.error?.error || 'Error', 'OK', { duration: 3000 }); this.saving.set(false); },
+      next: () => { this.snack.open(this.translate.instant('competitions.messages.saved'), this.translate.instant('common.ok'), { duration: 2000 }); this.ref.close(true); },
+      error: (err) => { this.snack.open(err.error?.error || this.translate.instant('competitions.messages.saveError'), this.translate.instant('common.ok'), { duration: 3000 }); this.saving.set(false); },
     });
   }
 }

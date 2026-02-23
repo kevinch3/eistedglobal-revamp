@@ -12,6 +12,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatCardModule } from '@angular/material/card';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatChipsModule } from '@angular/material/chips';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ApiService } from '../../core/services/api.service';
 import { Edition, Competition, Work } from '../../core/models';
 import { WorkDialogComponent } from './work-dialog.component';
@@ -23,12 +24,13 @@ import { WorkDialogComponent } from './work-dialog.component';
     FormsModule, MatTableModule, MatPaginatorModule, MatSortModule,
     MatButtonModule, MatIconModule, MatDialogModule, MatFormFieldModule,
     MatInputModule, MatSelectModule, MatCardModule, MatSnackBarModule, MatChipsModule,
+    TranslatePipe,
   ],
   template: `
     <div class="page-header">
-      <h1 class="page-title">Obras</h1>
+      <h1 class="page-title">{{ 'works.title' | translate }}</h1>
       <button mat-raised-button color="primary" (click)="openDialog()">
-        <mat-icon>library_add</mat-icon> Nueva obra
+        <mat-icon>library_add</mat-icon> {{ 'works.new' | translate }}
       </button>
     </div>
 
@@ -36,9 +38,9 @@ import { WorkDialogComponent } from './work-dialog.component';
       <mat-card-content>
         <div class="filters">
           <mat-form-field appearance="outline">
-            <mat-label>Año</mat-label>
+            <mat-label>{{ 'common.year' | translate }}</mat-label>
             <mat-select [(ngModel)]="yearFilter" (ngModelChange)="onYearChange()">
-              <mat-option value="">Todos</mat-option>
+              <mat-option value="">{{ 'common.all' | translate }}</mat-option>
               @for (e of editions(); track e.year) {
                 <mat-option [value]="e.year">{{ e.year }}</mat-option>
               }
@@ -46,9 +48,9 @@ import { WorkDialogComponent } from './work-dialog.component';
           </mat-form-field>
 
           <mat-form-field appearance="outline">
-            <mat-label>Competencia</mat-label>
+            <mat-label>{{ 'works.table.competition' | translate }}</mat-label>
             <mat-select [(ngModel)]="compFilter" (ngModelChange)="load()">
-              <mat-option value="">Todas</mat-option>
+              <mat-option value="">{{ 'works.filters.allCompetitions' | translate }}</mat-option>
               @for (c of competitions(); track c.id) {
                 <mat-option [value]="c.id">{{ c.id }}</mat-option>
               }
@@ -56,7 +58,7 @@ import { WorkDialogComponent } from './work-dialog.component';
           </mat-form-field>
 
           <mat-form-field appearance="outline">
-            <mat-label>Buscar</mat-label>
+            <mat-label>{{ 'common.search' | translate }}</mat-label>
             <mat-icon matPrefix>search</mat-icon>
             <input matInput (input)="applyFilter($event)" />
           </mat-form-field>
@@ -65,24 +67,24 @@ import { WorkDialogComponent } from './work-dialog.component';
         <div class="table-scroll">
         <table mat-table [dataSource]="dataSource" matSort class="full-width">
           <ng-container matColumnDef="title">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Obra</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'works.table.title' | translate }}</th>
             <td mat-cell *matCellDef="let w">{{ w.title }}</td>
           </ng-container>
 
           <ng-container matColumnDef="participant">
-            <th mat-header-cell *matHeaderCellDef>Participante</th>
+            <th mat-header-cell *matHeaderCellDef>{{ 'works.table.participant' | translate }}</th>
             <td mat-cell *matCellDef="let w">
               {{ w.display_name || (w.surname ? w.surname + ', ' + w.name : w.name) }}
             </td>
           </ng-container>
 
           <ng-container matColumnDef="competition_id">
-            <th mat-header-cell *matHeaderCellDef>Competencia</th>
+            <th mat-header-cell *matHeaderCellDef>{{ 'works.table.competition' | translate }}</th>
             <td mat-cell *matCellDef="let w"><code>{{ w.competition_id }}</code></td>
           </ng-container>
 
           <ng-container matColumnDef="placement">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Puesto</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'works.table.placement' | translate }}</th>
             <td mat-cell *matCellDef="let w">
               @if (w.placement) {
                 <mat-chip [color]="placementColor(w.placement)" highlighted>{{ placementLabel(w.placement) }}</mat-chip>
@@ -91,17 +93,17 @@ import { WorkDialogComponent } from './work-dialog.component';
           </ng-container>
 
           <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef>Acciones</th>
+            <th mat-header-cell *matHeaderCellDef>{{ 'works.table.actions' | translate }}</th>
             <td mat-cell *matCellDef="let w">
-              <button mat-icon-button color="primary" (click)="openDialog(w)"><mat-icon>edit</mat-icon></button>
-              <button mat-icon-button color="warn" (click)="delete(w)"><mat-icon>delete</mat-icon></button>
+              <button mat-icon-button color="primary" (click)="openDialog(w)" [title]="'common.edit' | translate"><mat-icon>edit</mat-icon></button>
+              <button mat-icon-button color="warn" (click)="delete(w)" [title]="'common.delete' | translate"><mat-icon>delete</mat-icon></button>
             </td>
           </ng-container>
 
           <tr mat-header-row *matHeaderRowDef="columns"></tr>
           <tr mat-row *matRowDef="let row; columns: columns"></tr>
           <tr class="mat-row" *matNoDataRow>
-            <td class="mat-cell no-data" [attr.colspan]="columns.length">Sin resultados</td>
+            <td class="mat-cell no-data" [attr.colspan]="columns.length">{{ 'common.noResults' | translate }}</td>
           </tr>
         </table>
         </div>
@@ -123,6 +125,7 @@ export class WorksComponent implements OnInit {
   private api = inject(ApiService);
   private dialog = inject(MatDialog);
   private snack = inject(MatSnackBar);
+  private translate = inject(TranslateService);
 
   columns = ['title', 'participant', 'competition_id', 'placement', 'actions'];
   dataSource = new MatTableDataSource<Work>();
@@ -168,15 +171,17 @@ export class WorksComponent implements OnInit {
   }
 
   delete(work: Work): void {
-    if (!confirm(`¿Eliminar "${work.title}"?`)) return;
+    if (!confirm(this.translate.instant('works.messages.confirmDelete', { title: work.title }))) return;
     this.api.deleteWork(work.id!).subscribe({
-      next: () => { this.snack.open('Eliminada', 'OK', { duration: 2000 }); this.load(); },
-      error: () => this.snack.open('Error', 'OK', { duration: 3000 }),
+      next: () => { this.snack.open(this.translate.instant('works.messages.deleted'), this.translate.instant('common.ok'), { duration: 2000 }); this.load(); },
+      error: () => this.snack.open(this.translate.instant('works.messages.deleteError'), this.translate.instant('common.ok'), { duration: 3000 }),
     });
   }
 
   placementLabel(p: string): string {
-    return p === 'mencion' ? 'Mención' : `${p}° lugar`;
+    return p === 'mencion'
+      ? this.translate.instant('works.placements.mencion')
+      : this.translate.instant('works.placements.place', { n: p });
   }
 
   placementColor(p: string): string {

@@ -7,6 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../core/services/auth.service';
 
 @Component({
@@ -16,25 +17,26 @@ import { AuthService } from '../../core/services/auth.service';
     ReactiveFormsModule,
     MatCardModule, MatFormFieldModule, MatInputModule,
     MatButtonModule, MatIconModule, MatProgressSpinnerModule,
+    TranslatePipe,
   ],
   template: `
     <div class="login-page">
       <mat-card class="login-card">
         <mat-card-header>
-          <mat-card-title>Eisteddfod Global</mat-card-title>
-          <mat-card-subtitle>Sistema de Gestión</mat-card-subtitle>
+          <mat-card-title>{{ 'auth.title' | translate }}</mat-card-title>
+          <mat-card-subtitle>{{ 'auth.subtitle' | translate }}</mat-card-subtitle>
         </mat-card-header>
 
         <mat-card-content>
           <form [formGroup]="form" (ngSubmit)="onSubmit()">
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Usuario</mat-label>
+              <mat-label>{{ 'auth.username' | translate }}</mat-label>
               <mat-icon matPrefix>person</mat-icon>
               <input matInput formControlName="username" autocomplete="username" />
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Contraseña</mat-label>
+              <mat-label>{{ 'auth.password' | translate }}</mat-label>
               <mat-icon matPrefix>lock</mat-icon>
               <input matInput [type]="hidePass() ? 'password' : 'text'" formControlName="password" autocomplete="current-password" />
               <button mat-icon-button matSuffix type="button" (click)="hidePass.set(!hidePass())">
@@ -51,7 +53,7 @@ import { AuthService } from '../../core/services/auth.service';
               @if (loading()) {
                 <mat-spinner diameter="20" />
               } @else {
-                Ingresar
+                {{ 'auth.login' | translate }}
               }
             </button>
           </form>
@@ -80,6 +82,7 @@ export class LoginComponent {
   private fb = inject(FormBuilder);
   private auth = inject(AuthService);
   private router = inject(Router);
+  private translate = inject(TranslateService);
 
   form = this.fb.nonNullable.group({
     username: ['', Validators.required],
@@ -99,7 +102,7 @@ export class LoginComponent {
     this.auth.login(username, password).subscribe({
       next: () => this.router.navigate(['/dashboard']),
       error: (err) => {
-        this.error.set(err.error?.error || 'Error al iniciar sesión');
+        this.error.set(err.error?.error || this.translate.instant('auth.loginError'));
         this.loading.set(false);
       },
     });

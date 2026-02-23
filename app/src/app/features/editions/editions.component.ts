@@ -8,6 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ApiService } from '../../core/services/api.service';
 import { Edition } from '../../core/models';
 
@@ -17,12 +18,13 @@ import { Edition } from '../../core/models';
   imports: [
     FormsModule, ReactiveFormsModule, MatCardModule, MatButtonModule, MatIconModule,
     MatFormFieldModule, MatInputModule, MatListModule, MatSnackBarModule, MatExpansionModule,
+    TranslatePipe,
   ],
   template: `
     <div class="page-header">
-      <h1 class="page-title">Ediciones</h1>
+      <h1 class="page-title">{{ 'editions.title' | translate }}</h1>
       <button mat-raised-button color="primary" (click)="showAdd = !showAdd">
-        <mat-icon>add</mat-icon> Nueva edición
+        <mat-icon>add</mat-icon> {{ 'editions.new' | translate }}
       </button>
     </div>
 
@@ -31,13 +33,13 @@ import { Edition } from '../../core/models';
         <mat-card-content>
           <form [formGroup]="addForm" (ngSubmit)="createEdition()" class="add-row">
             <mat-form-field appearance="outline">
-              <mat-label>Año</mat-label>
-              <input matInput type="number" formControlName="year" placeholder="2027" />
+              <mat-label>{{ 'editions.form.year' | translate }}</mat-label>
+              <input matInput type="number" formControlName="year" [placeholder]="'editions.form.yearPlaceholder' | translate" />
             </mat-form-field>
             <button mat-raised-button color="primary" type="submit" [disabled]="addForm.invalid">
-              Crear
+              {{ 'common.create' | translate }}
             </button>
-            <button mat-button type="button" (click)="showAdd = false">Cancelar</button>
+            <button mat-button type="button" (click)="showAdd = false">{{ 'common.cancel' | translate }}</button>
           </form>
         </mat-card-content>
       </mat-card>
@@ -47,27 +49,27 @@ import { Edition } from '../../core/models';
       @for (e of editions(); track e.year) {
         <mat-expansion-panel>
           <mat-expansion-panel-header>
-            <mat-panel-title>Edición {{ e.year }}</mat-panel-title>
+            <mat-panel-title>{{ 'editions.panel' | translate: { year: e.year } }}</mat-panel-title>
           </mat-expansion-panel-header>
 
           <form class="edition-form" (ngSubmit)="saveEdition(e)">
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Comisión</mat-label>
+              <mat-label>{{ 'editions.form.committee' | translate }}</mat-label>
               <textarea matInput [(ngModel)]="e.committee" [name]="'committee-'+e.year" rows="4"></textarea>
             </mat-form-field>
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>URL imagen comisión</mat-label>
+              <mat-label>{{ 'editions.form.committeeImg' | translate }}</mat-label>
               <input matInput [(ngModel)]="e.committee_img" [name]="'committee_img-'+e.year" />
             </mat-form-field>
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Presentadores</mat-label>
+              <mat-label>{{ 'editions.form.presenters' | translate }}</mat-label>
               <textarea matInput [(ngModel)]="e.presenters" [name]="'presenters-'+e.year" rows="3"></textarea>
             </mat-form-field>
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>URL imagen presentadores</mat-label>
+              <mat-label>{{ 'editions.form.presentersImg' | translate }}</mat-label>
               <input matInput [(ngModel)]="e.presenters_img" [name]="'presenters_img-'+e.year" />
             </mat-form-field>
-            <button mat-raised-button color="primary" type="submit">Guardar</button>
+            <button mat-raised-button color="primary" type="submit">{{ 'common.save' | translate }}</button>
           </form>
         </mat-expansion-panel>
       }
@@ -87,6 +89,7 @@ export class EditionsComponent implements OnInit {
   private api = inject(ApiService);
   private snack = inject(MatSnackBar);
   private fb = inject(FormBuilder);
+  private translate = inject(TranslateService);
 
   editions = signal<Edition[]>([]);
   showAdd = false;
@@ -106,8 +109,8 @@ export class EditionsComponent implements OnInit {
   createEdition(): void {
     if (this.addForm.invalid) return;
     this.api.createEdition(this.addForm.value.year!).subscribe({
-      next: () => { this.snack.open('Edición creada', 'OK', { duration: 2000 }); this.load(); this.showAdd = false; },
-      error: (err) => this.snack.open(err.error?.error || 'Error', 'OK', { duration: 3000 }),
+      next: () => { this.snack.open(this.translate.instant('editions.messages.created'), this.translate.instant('common.ok'), { duration: 2000 }); this.load(); this.showAdd = false; },
+      error: (err) => this.snack.open(err.error?.error || this.translate.instant('editions.messages.error'), this.translate.instant('common.ok'), { duration: 3000 }),
     });
   }
 
@@ -118,8 +121,8 @@ export class EditionsComponent implements OnInit {
       presenters: e.presenters,
       presenters_img: e.presenters_img,
     }).subscribe({
-      next: () => this.snack.open('Guardado', 'OK', { duration: 2000 }),
-      error: () => this.snack.open('Error al guardar', 'OK', { duration: 3000 }),
+      next: () => this.snack.open(this.translate.instant('editions.messages.saved'), this.translate.instant('common.ok'), { duration: 2000 }),
+      error: () => this.snack.open(this.translate.instant('editions.messages.saveError'), this.translate.instant('common.ok'), { duration: 3000 }),
     });
   }
 }

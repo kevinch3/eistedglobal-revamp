@@ -1,0 +1,255 @@
+{
+  "nav": {
+    "home": "Hafan",
+    "participants": "Cyfranogwyr",
+    "competitions": "Cystadlaethau",
+    "registrations": "Cofrestriadau",
+    "works": "Gweithiau",
+    "editions": "Argraffiadau"
+  },
+  "common": {
+    "save": "Cadw",
+    "saving": "Wrthi’n cadw...",
+    "cancel": "Canslo",
+    "create": "Creu",
+    "edit": "Golygu",
+    "delete": "Dileu",
+    "search": "Chwilio",
+    "noResults": "Dim canlyniadau",
+    "all": "Pob un",
+    "allFem": "Pob un",
+    "ok": "Iawn",
+    "type": "Math",
+    "year": "Blwyddyn",
+    "actions": "Camau gweithredu",
+    "status": "Statws",
+    "individual": "Unigol",
+    "group": "Grŵp",
+    "groupAlt": "Grŵp",
+    "active": "Gweithredol",
+    "inactive": "Anweithredol",
+    "error": "Gwall",
+    "saved": "Wedi’i gadw",
+    "saveError": "Gwall wrth gadw",
+    "deleteError": "Gwall wrth ddileu",
+    "menu": "Dewislen"
+  },
+  "user": {
+    "logout": "Allgofnodi",
+    "language": "Iaith"
+  },
+  "auth": {
+    "title": "Eisteddfod Global",
+    "subtitle": "System rheoli",
+    "username": "Enw defnyddiwr",
+    "password": "Cyfrinair",
+    "login": "Mewngofnodi",
+    "loginError": "Gwall wrth fewngofnodi"
+  },
+  "dashboard": {
+    "title": "Dangosfwrdd",
+    "quickAccess": "Mynediad cyflym",
+    "newParticipant": "Cyfranogwr newydd",
+    "newRegistration": "Cofrestriad newydd",
+    "newWork": "Gwaith newydd",
+    "newCompetition": "Cystadleuaeth newydd",
+    "participants": "Cyfranogwyr",
+    "competitions": "Cystadlaethau",
+    "registrations": "Cofrestriadau",
+    "works": "Gweithiau"
+  },
+  "participants": {
+    "title": "Cyfranogwyr",
+    "new": "Cyfranogwr newydd",
+    "searchPlaceholder": "Chwilio yn ôl enw, cyfenw neu ddogfen...",
+    "table": {
+      "type": "Math",
+      "name": "Enw",
+      "document": "Dogfen",
+      "residence": "Man preswyl",
+      "email": "Cyfeiriad e-bost",
+      "status": "Statws",
+      "actions": "Camau gweithredu"
+    },
+    "dialog": {
+      "titleNew": "Cyfranogwr newydd",
+      "titleEdit": "Golygu cyfranogwr",
+      "type": "Math",
+      "name": "Enw",
+      "active": "Cyfranogwr gweithredol",
+      "surname": "Cyfenw",
+      "document": "Dogfen",
+      "birthdate": "Dyddiad geni",
+      "phone": "Rhif ffôn",
+      "nationality": "Cenedligrwydd",
+      "residence": "Man preswyl",
+      "email": "Cyfeiriad e-bost"
+    },
+    "messages": {
+      "deleted": "Mae’r cyfranogwr wedi’i ddileu",
+      "deleteError": "Gwall wrth ddileu’r cyfranogwr",
+      "saved": "Mae’r cyfranogwr wedi’i gadw",
+      "saveError": "Gwall wrth gadw’r cyfranogwr",
+      "confirmDelete": "Dileu {{name}}?"
+    },
+    "nationalities": {
+      "argentina": "Yr Ariannin",
+      "wales": "Cymru",
+      "uruguay": "Uruguay",
+      "chile": "Chile",
+      "brazil": "Brasil",
+      "spain": "Sbaen",
+      "uk": "Y Deyrnas Unedig",
+      "italy": "Yr Eidal",
+      "germany": "Yr Almaen",
+      "poland": "Gwlad Pwyl",
+      "france": "Ffrainc",
+      "portugal": "Portiwgal",
+      "other": "Arall"
+    }
+  },
+  "competitions": {
+    "title": "Cystadlaethau",
+    "new": "Cystadleuaeth newydd",
+    "filters": {
+      "edition": "Argraffiad (blwyddyn)",
+      "allEditions": "Pob un",
+      "allTypes": "Pob math"
+    },
+    "table": {
+      "id": "ID",
+      "description": "Disgrifiad",
+      "category": "Categori",
+      "type": "Math",
+      "language": "Iaith",
+      "year": "Blwyddyn",
+      "actions": "Camau gweithredu"
+    },
+    "dialog": {
+      "titleNew": "Cystadleuaeth newydd",
+      "titleEdit": "Golygu cystadleuaeth",
+      "id": "ID y gystadleuaeth (e.e. CH202601)",
+      "idHint": "Fformat: CH/JU + Blwyddyn + Rhif (e.e. CH202601)",
+      "description": "Disgrifiad",
+      "category": "Categori",
+      "type": "Math",
+      "individual": "Unigol",
+      "group": "Grŵp",
+      "language": "Iaith",
+      "year": "Blwyddyn",
+      "rank": "Trefn"
+    },
+    "messages": {
+      "deleted": "Mae’r gystadleuaeth wedi’i dileu",
+      "deleteError": "Gwall wrth ddileu’r gystadleuaeth",
+      "saved": "Mae’r gystadleuaeth wedi’i chadw",
+      "saveError": "Gwall wrth gadw’r gystadleuaeth",
+      "confirmDelete": "Dileu cystadleuaeth {{id}}?"
+    },
+    "languages": {
+      "cymraeg": "Cymraeg",
+      "castellano": "Sbaeneg",
+      "english": "Saesneg",
+      "german": "Almaeneg",
+      "polish": "Pwyleg",
+      "french": "Ffrangeg",
+      "portuguese": "Portiwgaleg",
+      "italian": "Eidaleg",
+      "other": "Arall"
+    }
+  },
+  "registrations": {
+    "title": "Cofrestriadau",
+    "new": "Cofrestriad newydd",
+    "table": {
+      "participant": "Cyfranogwr",
+      "competition": "Cystadleuaeth",
+      "description": "Disgrifiad",
+      "pseudonym": "Ffugenw",
+      "year": "Blwyddyn",
+      "registeredAt": "Dyddiad cofrestru",
+      "actions": "Camau gweithredu"
+    },
+    "dialog": {
+      "title": "Cofrestriad newydd",
+      "participant": "Cyfranogwr",
+      "searchPlaceholder": "Chwilio yn ôl enw...",
+      "otherEdition": "Argraffiad arall (nid {{year}})",
+      "year": "Blwyddyn",
+      "competition": "Cystadleuaeth",
+      "pseudonym": "Ffugenw (dewisol)",
+      "submit": "Cofrestru"
+    },
+    "actions": {
+      "drop": "Tynnu’n ôl"
+    },
+    "messages": {
+      "dropped": "Mae’r cofrestriad wedi’i dynnu’n ôl",
+      "registered": "Mae’r cofrestriad wedi’i greu",
+      "confirmDrop": "Tynnu’r cofrestriad hwn yn ôl?",
+      "error": "Gwall",
+      "saveError": "Gwall wrth gadw"
+    }
+  },
+  "works": {
+    "title": "Gweithiau",
+    "new": "Gwaith newydd",
+    "filters": {
+      "allCompetitions": "Pob un"
+    },
+    "table": {
+      "title": "Teitl",
+      "participant": "Cyfranogwr",
+      "competition": "Cystadleuaeth",
+      "placement": "Safle",
+      "actions": "Camau gweithredu"
+    },
+    "dialog": {
+      "titleNew": "Gwaith newydd",
+      "titleEdit": "Golygu gwaith",
+      "title": "Teitl y gwaith",
+      "participant": "Cyfranogwr",
+      "searchPlaceholder": "Chwilio yn ôl enw...",
+      "competition": "Cystadleuaeth",
+      "displayName": "Ffugenw / enw i’w ddangos",
+      "placement": "Safle",
+      "noPlacement": "Heb ei bennu",
+      "place1": "Lle cyntaf",
+      "place2": "Ail le",
+      "place3": "Trydydd lle",
+      "mention": "Clod arbennig",
+      "youtube": "Fideo YouTube (URL neu ID)",
+      "youtubePlaceholder": "e.e. https://youtube.com/watch?v=dQw4w9WgXcQ neu dQw4w9WgXcQ"
+    },
+    "placements": {
+      "mencion": "Clod arbennig",
+      "place": "{{n}}fed lle"
+    },
+    "messages": {
+      "deleted": "Mae’r gwaith wedi’i ddileu",
+      "deleteError": "Gwall wrth ddileu’r gwaith",
+      "saved": "Mae’r gwaith wedi’i gadw",
+      "saveError": "Gwall wrth gadw’r gwaith",
+      "confirmDelete": "Dileu \"{{title}}\"?"
+    }
+  },
+  "editions": {
+    "title": "Argraffiadau",
+    "new": "Argraffiad newydd",
+    "panel": "Argraffiad {{year}}",
+    "form": {
+      "year": "Blwyddyn",
+      "yearPlaceholder": "2027",
+      "committee": "Pwyllgor",
+      "committeeImg": "URL llun y pwyllgor",
+      "presenters": "Cyflwynwyr",
+      "presentersImg": "URL llun y cyflwynwyr"
+    },
+    "messages": {
+      "created": "Mae’r argraffiad wedi’i greu",
+      "saved": "Mae’r argraffiad wedi’i gadw",
+      "saveError": "Gwall wrth gadw’r argraffiad",
+      "error": "Gwall"
+    }
+  }
+}

@@ -2,35 +2,36 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
+import { TranslatePipe } from '@ngx-translate/core';
 import { ApiService } from '../../core/services/api.service';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [MatCardModule, MatIconModule, RouterLink],
+  imports: [MatCardModule, MatIconModule, RouterLink, TranslatePipe],
   template: `
-    <h1 class="page-title">Panel Principal</h1>
+    <h1 class="page-title">{{ 'dashboard.title' | translate }}</h1>
 
     <div class="stats-grid">
-      @for (stat of stats(); track stat.label) {
+      @for (stat of stats(); track stat.key) {
         <mat-card class="stat-card" [routerLink]="stat.route">
           <mat-card-content>
             <mat-icon class="stat-icon" [style.color]="stat.color">{{ stat.icon }}</mat-icon>
             <div class="stat-value">{{ stat.value }}</div>
-            <div class="stat-label">{{ stat.label }}</div>
+            <div class="stat-label">{{ stat.key | translate }}</div>
           </mat-card-content>
         </mat-card>
       }
     </div>
 
     <div class="quick-links">
-      <h2>Accesos rápidos</h2>
+      <h2>{{ 'dashboard.quickAccess' | translate }}</h2>
       <div class="links-grid">
-        @for (item of quickLinks; track item.label) {
+        @for (item of quickLinks; track item.labelKey) {
           <mat-card class="link-card" [routerLink]="item.route">
             <mat-card-content>
               <mat-icon>{{ item.icon }}</mat-icon>
-              <span>{{ item.label }}</span>
+              <span>{{ item.labelKey | translate }}</span>
             </mat-card-content>
           </mat-card>
         }
@@ -55,32 +56,32 @@ import { ApiService } from '../../core/services/api.service';
 })
 export class DashboardComponent implements OnInit {
   private api = inject(ApiService);
-  stats = signal<{ label: string; value: number; icon: string; color: string; route: string }[]>([]);
+  stats = signal<{ key: string; value: number; icon: string; color: string; route: string }[]>([]);
 
   quickLinks = [
-    { icon: 'person_add', label: 'Nuevo participante', route: '/participants' },
-    { icon: 'how_to_reg', label: 'Nueva inscripción', route: '/registrations' },
-    { icon: 'library_add', label: 'Nueva obra', route: '/works' },
-    { icon: 'add_circle', label: 'Nueva competencia', route: '/competitions' },
+    { icon: 'person_add', labelKey: 'dashboard.newParticipant', route: '/participants' },
+    { icon: 'how_to_reg', labelKey: 'dashboard.newRegistration', route: '/registrations' },
+    { icon: 'library_add', labelKey: 'dashboard.newWork', route: '/works' },
+    { icon: 'add_circle', labelKey: 'dashboard.newCompetition', route: '/competitions' },
   ];
 
   ngOnInit(): void {
-    this.api.getParticipants().subscribe((p) => this.updateStat('Participantes', p.length, 'people', '#1565c0', '/participants'));
+    this.api.getParticipants().subscribe((p) => this.updateStat('dashboard.participants', p.length, 'people', '#1565c0', '/participants'));
     this.api.getCompetitions().subscribe((c) =>
-      this.updateStat('Competencias', c.length, 'emoji_events', '#6a1b9a', '/competitions')
+      this.updateStat('dashboard.competitions', c.length, 'emoji_events', '#6a1b9a', '/competitions')
     );
     this.api.getRegistrations().subscribe((r) =>
-      this.updateStat('Inscripciones', r.length, 'how_to_reg', '#2e7d32', '/registrations')
+      this.updateStat('dashboard.registrations', r.length, 'how_to_reg', '#2e7d32', '/registrations')
     );
     this.api.getWorks().subscribe((w) =>
-      this.updateStat('Obras', w.length, 'library_music', '#e65100', '/works')
+      this.updateStat('dashboard.works', w.length, 'library_music', '#e65100', '/works')
     );
   }
 
-  private updateStat(label: string, value: number, icon: string, color: string, route: string): void {
+  private updateStat(key: string, value: number, icon: string, color: string, route: string): void {
     this.stats.update((prev) => {
-      const idx = prev.findIndex((s) => s.label === label);
-      const entry = { label, value, icon, color, route };
+      const idx = prev.findIndex((s) => s.key === key);
+      const entry = { key, value, icon, color, route };
       return idx >= 0 ? prev.map((s, i) => (i === idx ? entry : s)) : [...prev, entry];
     });
   }

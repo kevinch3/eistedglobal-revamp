@@ -12,6 +12,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatCardModule } from '@angular/material/card';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatChipsModule } from '@angular/material/chips';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ApiService } from '../../core/services/api.service';
 import { Edition, Registration } from '../../core/models';
 import { RegistrationDialogComponent } from './registration-dialog.component';
@@ -23,12 +24,13 @@ import { RegistrationDialogComponent } from './registration-dialog.component';
     FormsModule, MatTableModule, MatPaginatorModule, MatSortModule,
     MatButtonModule, MatIconModule, MatDialogModule, MatFormFieldModule,
     MatInputModule, MatSelectModule, MatCardModule, MatSnackBarModule, MatChipsModule,
+    TranslatePipe,
   ],
   template: `
     <div class="page-header">
-      <h1 class="page-title">Inscripciones</h1>
+      <h1 class="page-title">{{ 'registrations.title' | translate }}</h1>
       <button mat-raised-button color="primary" (click)="openDialog()">
-        <mat-icon>how_to_reg</mat-icon> Nueva inscripción
+        <mat-icon>how_to_reg</mat-icon> {{ 'registrations.new' | translate }}
       </button>
     </div>
 
@@ -36,16 +38,16 @@ import { RegistrationDialogComponent } from './registration-dialog.component';
       <mat-card-content>
         <div class="filters">
           <mat-form-field appearance="outline">
-            <mat-label>Año</mat-label>
+            <mat-label>{{ 'common.year' | translate }}</mat-label>
             <mat-select [(ngModel)]="yearFilter" (ngModelChange)="load()">
-              <mat-option value="">Todos</mat-option>
+              <mat-option value="">{{ 'common.all' | translate }}</mat-option>
               @for (e of editions(); track e.year) {
                 <mat-option [value]="e.year">{{ e.year }}</mat-option>
               }
             </mat-select>
           </mat-form-field>
           <mat-form-field appearance="outline">
-            <mat-label>Buscar</mat-label>
+            <mat-label>{{ 'common.search' | translate }}</mat-label>
             <mat-icon matPrefix>search</mat-icon>
             <input matInput (input)="applyFilter($event)" />
           </mat-form-field>
@@ -54,41 +56,41 @@ import { RegistrationDialogComponent } from './registration-dialog.component';
         <div class="table-scroll">
         <table mat-table [dataSource]="dataSource" matSort class="full-width">
           <ng-container matColumnDef="participant">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Participante</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'registrations.table.participant' | translate }}</th>
             <td mat-cell *matCellDef="let r">
               {{ r.surname ? r.surname + ', ' + r.name : r.name }}
             </td>
           </ng-container>
 
           <ng-container matColumnDef="competition_id">
-            <th mat-header-cell *matHeaderCellDef>Competencia</th>
+            <th mat-header-cell *matHeaderCellDef>{{ 'registrations.table.competition' | translate }}</th>
             <td mat-cell *matCellDef="let r"><code>{{ r.competition_id }}</code></td>
           </ng-container>
 
           <ng-container matColumnDef="comp_description">
-            <th mat-header-cell *matHeaderCellDef>Descripción</th>
+            <th mat-header-cell *matHeaderCellDef>{{ 'registrations.table.description' | translate }}</th>
             <td mat-cell *matCellDef="let r">{{ r.comp_description || '—' }}</td>
           </ng-container>
 
           <ng-container matColumnDef="pseudonym">
-            <th mat-header-cell *matHeaderCellDef>Seudónimo</th>
+            <th mat-header-cell *matHeaderCellDef>{{ 'registrations.table.pseudonym' | translate }}</th>
             <td mat-cell *matCellDef="let r">{{ r.pseudonym || '—' }}</td>
           </ng-container>
 
           <ng-container matColumnDef="year">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Año</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'registrations.table.year' | translate }}</th>
             <td mat-cell *matCellDef="let r">{{ r.year }}</td>
           </ng-container>
 
           <ng-container matColumnDef="registered_at">
-            <th mat-header-cell *matHeaderCellDef>Fecha inscripción</th>
+            <th mat-header-cell *matHeaderCellDef>{{ 'registrations.table.registeredAt' | translate }}</th>
             <td mat-cell *matCellDef="let r">{{ r.registered_at || '—' }}</td>
           </ng-container>
 
           <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef>Acciones</th>
+            <th mat-header-cell *matHeaderCellDef>{{ 'registrations.table.actions' | translate }}</th>
             <td mat-cell *matCellDef="let r">
-              <button mat-icon-button color="warn" (click)="drop(r)" title="Dar de baja">
+              <button mat-icon-button color="warn" (click)="drop(r)" [title]="'registrations.actions.drop' | translate">
                 <mat-icon>person_remove</mat-icon>
               </button>
             </td>
@@ -97,7 +99,7 @@ import { RegistrationDialogComponent } from './registration-dialog.component';
           <tr mat-header-row *matHeaderRowDef="columns"></tr>
           <tr mat-row *matRowDef="let row; columns: columns"></tr>
           <tr class="mat-row" *matNoDataRow>
-            <td class="mat-cell no-data" [attr.colspan]="columns.length">Sin resultados</td>
+            <td class="mat-cell no-data" [attr.colspan]="columns.length">{{ 'common.noResults' | translate }}</td>
           </tr>
         </table>
         </div>
@@ -119,6 +121,7 @@ export class RegistrationsComponent implements OnInit {
   private api = inject(ApiService);
   private dialog = inject(MatDialog);
   private snack = inject(MatSnackBar);
+  private translate = inject(TranslateService);
 
   columns = ['participant', 'competition_id', 'comp_description', 'pseudonym', 'year', 'registered_at', 'actions'];
   dataSource = new MatTableDataSource<Registration>();
@@ -152,10 +155,10 @@ export class RegistrationsComponent implements OnInit {
   }
 
   drop(reg: Registration): void {
-    if (!confirm('¿Dar de baja esta inscripción?')) return;
+    if (!confirm(this.translate.instant('registrations.messages.confirmDrop'))) return;
     this.api.dropRegistration(reg.id!).subscribe({
-      next: () => { this.snack.open('Baja registrada', 'OK', { duration: 2000 }); this.load(); },
-      error: () => this.snack.open('Error', 'OK', { duration: 3000 }),
+      next: () => { this.snack.open(this.translate.instant('registrations.messages.dropped'), this.translate.instant('common.ok'), { duration: 2000 }); this.load(); },
+      error: () => this.snack.open(this.translate.instant('registrations.messages.error'), this.translate.instant('common.ok'), { duration: 3000 }),
     });
   }
 }

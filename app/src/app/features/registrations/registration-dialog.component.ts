@@ -8,6 +8,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ApiService } from '../../core/services/api.service';
 import { Edition, Competition, Participant } from '../../core/models';
 
@@ -18,18 +19,19 @@ import { Edition, Competition, Participant } from '../../core/models';
     ReactiveFormsModule, MatDialogModule, MatButtonModule,
     MatFormFieldModule, MatInputModule, MatSelectModule,
     MatAutocompleteModule, MatCheckboxModule, MatSnackBarModule,
+    TranslatePipe,
   ],
   template: `
-    <h2 mat-dialog-title>Nueva inscripción</h2>
+    <h2 mat-dialog-title>{{ 'registrations.dialog.title' | translate }}</h2>
 
     <mat-dialog-content>
       <form [formGroup]="form" class="form-col">
 
         <mat-form-field appearance="outline">
-          <mat-label>Participante</mat-label>
+          <mat-label>{{ 'registrations.dialog.participant' | translate }}</mat-label>
           <input matInput [formControl]="participantCtrl"
                  [matAutocomplete]="participantAuto"
-                 placeholder="Buscar por nombre..." />
+                 [placeholder]="'registrations.dialog.searchPlaceholder' | translate" />
           <mat-autocomplete #participantAuto="matAutocomplete"
                             [displayWith]="displayParticipant"
                             (optionSelected)="onParticipantSelected($event)">
@@ -42,12 +44,12 @@ import { Edition, Competition, Participant } from '../../core/models';
         </mat-form-field>
 
         <mat-checkbox [checked]="showYearSelect" (change)="toggleYearSelect($event.checked)">
-          Otra edición (no es {{ currentYear }})
+          {{ 'registrations.dialog.otherEdition' | translate: { year: currentYear } }}
         </mat-checkbox>
 
         @if (showYearSelect) {
           <mat-form-field appearance="outline">
-            <mat-label>Año</mat-label>
+            <mat-label>{{ 'registrations.dialog.year' | translate }}</mat-label>
             <mat-select formControlName="year" (selectionChange)="onYearChange()">
               @for (e of editions(); track e.year) {
                 <mat-option [value]="e.year">{{ e.year }}</mat-option>
@@ -57,7 +59,7 @@ import { Edition, Competition, Participant } from '../../core/models';
         }
 
         <mat-form-field appearance="outline">
-          <mat-label>Competencia</mat-label>
+          <mat-label>{{ 'registrations.dialog.competition' | translate }}</mat-label>
           <mat-select formControlName="competition_id">
             @for (c of competitions(); track c.id) {
               <mat-option [value]="c.id">{{ c.id }} – {{ c.description }}</mat-option>
@@ -66,7 +68,7 @@ import { Edition, Competition, Participant } from '../../core/models';
         </mat-form-field>
 
         <mat-form-field appearance="outline">
-          <mat-label>Seudónimo (opcional)</mat-label>
+          <mat-label>{{ 'registrations.dialog.pseudonym' | translate }}</mat-label>
           <input matInput formControlName="pseudonym" />
         </mat-form-field>
 
@@ -74,9 +76,9 @@ import { Edition, Competition, Participant } from '../../core/models';
     </mat-dialog-content>
 
     <mat-dialog-actions align="end">
-      <button mat-button mat-dialog-close>Cancelar</button>
+      <button mat-button mat-dialog-close>{{ 'common.cancel' | translate }}</button>
       <button mat-raised-button color="primary" (click)="save()" [disabled]="form.invalid || saving()">
-        {{ saving() ? 'Guardando...' : 'Inscribir' }}
+        {{ (saving() ? 'common.saving' : 'registrations.dialog.submit') | translate }}
       </button>
     </mat-dialog-actions>
   `,
@@ -91,6 +93,7 @@ export class RegistrationDialogComponent implements OnInit {
   private api = inject(ApiService);
   private snack = inject(MatSnackBar);
   private ref = inject(MatDialogRef<RegistrationDialogComponent>);
+  private translate = inject(TranslateService);
 
   saving = signal(false);
   participants = signal<Participant[]>([]);
@@ -157,8 +160,8 @@ export class RegistrationDialogComponent implements OnInit {
     if (this.form.invalid) return;
     this.saving.set(true);
     this.api.createRegistration(this.form.getRawValue() as any).subscribe({
-      next: () => { this.snack.open('Inscripto', 'OK', { duration: 2000 }); this.ref.close(true); },
-      error: (err) => { this.snack.open(err.error?.error || 'Error', 'OK', { duration: 3000 }); this.saving.set(false); },
+      next: () => { this.snack.open(this.translate.instant('registrations.messages.registered'), this.translate.instant('common.ok'), { duration: 2000 }); this.ref.close(true); },
+      error: (err) => { this.snack.open(err.error?.error || this.translate.instant('registrations.messages.saveError'), this.translate.instant('common.ok'), { duration: 3000 }); this.saving.set(false); },
     });
   }
 }

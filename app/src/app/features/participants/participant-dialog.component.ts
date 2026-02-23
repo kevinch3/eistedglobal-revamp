@@ -7,12 +7,24 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ApiService } from '../../core/services/api.service';
 import { Participant } from '../../core/models';
 
-const NATIONALITIES = [
-  'Argentina', 'Gales', 'Uruguay', 'Chile', 'Brasil', 'España',
-  'Reino Unido', 'Italia', 'Alemania', 'Polonia', 'Francia', 'Portugal', 'Otro',
+const NATIONALITIES: { value: string; key: string }[] = [
+  { value: 'Argentina', key: 'participants.nationalities.argentina' },
+  { value: 'Gales',     key: 'participants.nationalities.wales' },
+  { value: 'Uruguay',   key: 'participants.nationalities.uruguay' },
+  { value: 'Chile',     key: 'participants.nationalities.chile' },
+  { value: 'Brasil',    key: 'participants.nationalities.brazil' },
+  { value: 'España',    key: 'participants.nationalities.spain' },
+  { value: 'Reino Unido', key: 'participants.nationalities.uk' },
+  { value: 'Italia',    key: 'participants.nationalities.italy' },
+  { value: 'Alemania',  key: 'participants.nationalities.germany' },
+  { value: 'Polonia',   key: 'participants.nationalities.poland' },
+  { value: 'Francia',   key: 'participants.nationalities.france' },
+  { value: 'Portugal',  key: 'participants.nationalities.portugal' },
+  { value: 'Otro',      key: 'participants.nationalities.other' },
 ];
 
 @Component({
@@ -21,76 +33,77 @@ const NATIONALITIES = [
   imports: [
     ReactiveFormsModule, MatDialogModule, MatButtonModule,
     MatFormFieldModule, MatInputModule, MatSelectModule, MatSlideToggleModule, MatSnackBarModule,
+    TranslatePipe,
   ],
   template: `
-    <h2 mat-dialog-title>{{ data ? 'Editar' : 'Nuevo' }} participante</h2>
+    <h2 mat-dialog-title>{{ (data ? 'participants.dialog.titleEdit' : 'participants.dialog.titleNew') | translate }}</h2>
 
     <mat-dialog-content>
       <form [formGroup]="form" class="form-grid">
         <mat-form-field appearance="outline">
-          <mat-label>Tipo</mat-label>
+          <mat-label>{{ 'participants.dialog.type' | translate }}</mat-label>
           <mat-select formControlName="type">
-            <mat-option value="IND">Individual</mat-option>
-            <mat-option value="GRU">Grupo</mat-option>
+            <mat-option value="IND">{{ 'common.individual' | translate }}</mat-option>
+            <mat-option value="GRU">{{ 'common.group' | translate }}</mat-option>
           </mat-select>
         </mat-form-field>
 
         <mat-form-field appearance="outline">
-          <mat-label>Nombre</mat-label>
+          <mat-label>{{ 'participants.dialog.name' | translate }}</mat-label>
           <input matInput formControlName="name" />
         </mat-form-field>
 
         <mat-slide-toggle formControlName="active" class="full-width status-toggle">
-          Participante activo
+          {{ 'participants.dialog.active' | translate }}
         </mat-slide-toggle>
 
         @if (form.value.type === 'IND') {
           <mat-form-field appearance="outline">
-            <mat-label>Apellido</mat-label>
+            <mat-label>{{ 'participants.dialog.surname' | translate }}</mat-label>
             <input matInput formControlName="surname" />
           </mat-form-field>
 
           <mat-form-field appearance="outline">
-            <mat-label>Documento</mat-label>
+            <mat-label>{{ 'participants.dialog.document' | translate }}</mat-label>
             <input matInput formControlName="document_id" />
           </mat-form-field>
 
           <mat-form-field appearance="outline">
-            <mat-label>Fecha de nacimiento</mat-label>
+            <mat-label>{{ 'participants.dialog.birthdate' | translate }}</mat-label>
             <input matInput type="date" formControlName="birth_date" />
           </mat-form-field>
 
           <mat-form-field appearance="outline">
-            <mat-label>Teléfono</mat-label>
+            <mat-label>{{ 'participants.dialog.phone' | translate }}</mat-label>
             <input matInput formControlName="phone" />
           </mat-form-field>
         }
 
         <mat-form-field appearance="outline">
-          <mat-label>Nacionalidad</mat-label>
+          <mat-label>{{ 'participants.dialog.nationality' | translate }}</mat-label>
           <mat-select formControlName="nationality">
-            @for (n of nationalities; track n) {
-              <mat-option [value]="n">{{ n }}</mat-option>
+            @for (n of nationalities; track n.value) {
+              <mat-option [value]="n.value">{{ n.key | translate }}</mat-option>
             }
           </mat-select>
         </mat-form-field>
 
         <mat-form-field appearance="outline">
-          <mat-label>Residencia</mat-label>
+          <mat-label>{{ 'participants.dialog.residence' | translate }}</mat-label>
           <input matInput formControlName="residence" />
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Email</mat-label>
+          <mat-label>{{ 'participants.dialog.email' | translate }}</mat-label>
           <input matInput type="email" formControlName="email" />
         </mat-form-field>
       </form>
     </mat-dialog-content>
 
     <mat-dialog-actions align="end">
-      <button mat-button mat-dialog-close>Cancelar</button>
+      <button mat-button mat-dialog-close>{{ 'common.cancel' | translate }}</button>
       <button mat-raised-button color="primary" (click)="save()" [disabled]="form.invalid || saving()">
-        {{ saving() ? 'Guardando...' : 'Guardar' }}
+        {{ (saving() ? 'common.saving' : 'common.save') | translate }}
       </button>
     </mat-dialog-actions>
   `,
@@ -110,6 +123,7 @@ export class ParticipantDialogComponent {
   private api = inject(ApiService);
   private snack = inject(MatSnackBar);
   private ref = inject(MatDialogRef<ParticipantDialogComponent>);
+  private translate = inject(TranslateService);
 
   saving = signal(false);
   data = inject<Participant | undefined>(MAT_DIALOG_DATA);
@@ -143,11 +157,11 @@ export class ParticipantDialogComponent {
 
     op.subscribe({
       next: () => {
-        this.snack.open('Guardado correctamente', 'OK', { duration: 2000 });
+        this.snack.open(this.translate.instant('participants.messages.saved'), this.translate.instant('common.ok'), { duration: 2000 });
         this.ref.close(true);
       },
       error: (err) => {
-        this.snack.open(err.error?.error || 'Error al guardar', 'OK', { duration: 3000 });
+        this.snack.open(err.error?.error || this.translate.instant('participants.messages.saveError'), this.translate.instant('common.ok'), { duration: 3000 });
         this.saving.set(false);
       },
     });
