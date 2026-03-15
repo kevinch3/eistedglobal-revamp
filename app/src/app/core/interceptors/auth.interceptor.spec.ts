@@ -9,17 +9,14 @@ import { authInterceptor } from './auth.interceptor';
 describe('authInterceptor', () => {
   let http: HttpClient;
   let httpTesting: HttpTestingController;
-  let authSpy: jasmine.SpyObj<AuthService>;
-  let snackBarSpy: jasmine.SpyObj<MatSnackBar>;
-  let translateSpy: jasmine.SpyObj<TranslateService>;
+  let authSpy: { logout: ReturnType<typeof vi.fn>; token: ReturnType<typeof vi.fn> };
+  let snackBarSpy: { open: ReturnType<typeof vi.fn> };
+  let translateSpy: { instant: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
-    authSpy = jasmine.createSpyObj('AuthService', ['logout'], {
-      token: jasmine.createSpy('token').and.returnValue('fake-token'),
-    });
-    snackBarSpy = jasmine.createSpyObj('MatSnackBar', ['open']);
-    translateSpy = jasmine.createSpyObj('TranslateService', ['instant']);
-    translateSpy.instant.and.callFake((key: string) => key);
+    authSpy = { logout: vi.fn(), token: vi.fn().mockReturnValue('fake-token') };
+    snackBarSpy = { open: vi.fn() };
+    translateSpy = { instant: vi.fn((key: string) => key) };
 
     TestBed.configureTestingModule({
       providers: [
@@ -49,7 +46,7 @@ describe('authInterceptor', () => {
   it('should add X-API-Key header', () => {
     http.get('/api/participants').subscribe();
     const req = httpTesting.expectOne('/api/participants');
-    expect(req.request.headers.has('X-API-Key')).toBeTrue();
+    expect(req.request.headers.has('X-API-Key')).toBe(true);
     req.flush([]);
   });
 
@@ -62,7 +59,7 @@ describe('authInterceptor', () => {
     expect(snackBarSpy.open).toHaveBeenCalledWith(
       'auth.sessionExpired',
       'common.ok',
-      jasmine.objectContaining({ duration: 5000 }),
+      expect.objectContaining({ duration: 5000 }),
     );
   });
 
@@ -96,10 +93,10 @@ describe('authInterceptor', () => {
   });
 
   it('should not add Authorization header when no token exists', () => {
-    (authSpy.token as jasmine.Spy).and.returnValue(null);
+    authSpy.token.mockReturnValue(null);
     http.get('/api/participants').subscribe();
     const req = httpTesting.expectOne('/api/participants');
-    expect(req.request.headers.has('Authorization')).toBeFalse();
+    expect(req.request.headers.has('Authorization')).toBe(false);
     req.flush([]);
   });
 });

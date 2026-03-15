@@ -34,17 +34,7 @@ describe('AuthService', () => {
   });
 
   it('should read token from localStorage on creation', () => {
-    localStorage.setItem('eistedglobal_token', 'stored-token');
-    localStorage.setItem('eistedglobal_user', JSON.stringify({ name: 'Test', username: 'test' }));
-
-    // Re-create the service so it reads from localStorage
-    const freshService = new AuthService(
-      TestBed.inject(HttpTestingController) as any,
-      router,
-    );
-    // The signal reads localStorage at construction time, but since AuthService uses
-    // DI HttpClient we need to test via TestBed
-    // Instead, test the default TestBed instance after setting localStorage before creation
+    // Need to re-create with pre-set localStorage
     TestBed.resetTestingModule();
     localStorage.setItem('eistedglobal_token', 'stored-token');
     localStorage.setItem('eistedglobal_user', JSON.stringify({ name: 'Test', username: 'test' }));
@@ -57,14 +47,11 @@ describe('AuthService', () => {
     });
     const svc = TestBed.inject(AuthService);
     expect(svc.token()).toBe('stored-token');
-    expect(svc.isLoggedIn()).toBeTrue();
+    expect(svc.isLoggedIn()).toBe(true);
     expect(svc.currentUser()).toEqual({ name: 'Test', username: 'test' });
   });
 
   it('should clear state on logout', () => {
-    localStorage.setItem('eistedglobal_token', 'some-token');
-    localStorage.setItem('eistedglobal_user', JSON.stringify({ name: 'A', username: 'a' }));
-
     TestBed.resetTestingModule();
     localStorage.setItem('eistedglobal_token', 'some-token');
     localStorage.setItem('eistedglobal_user', JSON.stringify({ name: 'A', username: 'a' }));
@@ -77,19 +64,19 @@ describe('AuthService', () => {
     });
     const svc = TestBed.inject(AuthService);
     const rtr = TestBed.inject(Router);
-    spyOn(rtr, 'navigate');
+    vi.spyOn(rtr, 'navigate').mockResolvedValue(true);
 
     svc.logout();
 
     expect(svc.token()).toBeNull();
     expect(svc.currentUser()).toBeNull();
-    expect(svc.isLoggedIn()).toBeFalse();
+    expect(svc.isLoggedIn()).toBe(false);
     expect(localStorage.getItem('eistedglobal_token')).toBeNull();
     expect(localStorage.getItem('eistedglobal_user')).toBeNull();
   });
 
   it('should navigate to /login on logout', () => {
-    spyOn(router, 'navigate');
+    vi.spyOn(router, 'navigate').mockResolvedValue(true);
     service.logout();
     expect(router.navigate).toHaveBeenCalledWith(['/login']);
   });
@@ -101,7 +88,7 @@ describe('AuthService', () => {
     req.flush({ token: 'new-token', name: 'Admin', username: 'admin' });
 
     expect(service.token()).toBe('new-token');
-    expect(service.isLoggedIn()).toBeTrue();
+    expect(service.isLoggedIn()).toBe(true);
     expect(service.currentUser()).toEqual({ name: 'Admin', username: 'admin' });
     expect(localStorage.getItem('eistedglobal_token')).toBe('new-token');
   });

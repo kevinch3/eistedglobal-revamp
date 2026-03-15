@@ -1,7 +1,7 @@
-import { ApplicationConfig, APP_INITIALIZER, provideZoneChangeDetection } from '@angular/core';
+import { ApplicationConfig, inject, provideAppInitializer, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { provideAnimations } from '@angular/platform-browser/animations';
 import { TranslateLoader } from '@ngx-translate/core';
 import { TranslateHttpLoader, provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 import { provideTranslateService } from '@ngx-translate/core';
@@ -15,7 +15,7 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideHttpClient(withInterceptors([authInterceptor])),
-    provideAnimationsAsync(),
+    provideAnimations(),
     ...provideTranslateService({
       defaultLanguage: 'es',
       loader: {
@@ -24,17 +24,7 @@ export const appConfig: ApplicationConfig = {
       },
     }),
     ...provideTranslateHttpLoader({ prefix: '/i18n/', suffix: '.json' }),
-    {
-      provide: APP_INITIALIZER,
-      useFactory: (langService: LanguageService) => () => langService.init(),
-      deps: [LanguageService],
-      multi: true,
-    },
-    {
-      provide: APP_INITIALIZER,
-      useFactory: (themeService: ThemeService) => () => themeService.init(),
-      deps: [ThemeService],
-      multi: true,
-    },
+    provideAppInitializer(() => inject(LanguageService).init()),
+    provideAppInitializer(() => inject(ThemeService).init()),
   ],
 };

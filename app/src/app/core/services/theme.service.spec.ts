@@ -15,21 +15,21 @@ describe('ThemeService', () => {
   it('should default to light theme when no localStorage value', () => {
     service.init();
     expect(service.currentTheme()).toBe('light');
-    expect(document.body.classList.contains('dark-theme')).toBeFalse();
+    expect(document.body.classList.contains('dark-theme')).toBe(false);
   });
 
   it('should restore dark theme from localStorage', () => {
     localStorage.setItem('eistedglobal_theme', 'dark');
     service.init();
     expect(service.currentTheme()).toBe('dark');
-    expect(document.body.classList.contains('dark-theme')).toBeTrue();
+    expect(document.body.classList.contains('dark-theme')).toBe(true);
   });
 
   it('should toggle from light to dark', () => {
     service.init();
     service.toggle();
     expect(service.currentTheme()).toBe('dark');
-    expect(document.body.classList.contains('dark-theme')).toBeTrue();
+    expect(document.body.classList.contains('dark-theme')).toBe(true);
     expect(localStorage.getItem('eistedglobal_theme')).toBe('dark');
   });
 
@@ -38,7 +38,7 @@ describe('ThemeService', () => {
     service.init();
     service.toggle();
     expect(service.currentTheme()).toBe('light');
-    expect(document.body.classList.contains('dark-theme')).toBeFalse();
+    expect(document.body.classList.contains('dark-theme')).toBe(false);
     expect(localStorage.getItem('eistedglobal_theme')).toBe('light');
   });
 
@@ -54,6 +54,6 @@ describe('ThemeService', () => {
     localStorage.setItem('eistedglobal_theme', 'garbage');
     service.init();
     expect(service.currentTheme()).toBe('light');
-    expect(document.body.classList.contains('dark-theme')).toBeFalse();
+    expect(document.body.classList.contains('dark-theme')).toBe(false);
   });
 });
