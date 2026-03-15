@@ -7,8 +7,10 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../core/services/auth.service';
+import { ThemeService } from '../../core/services/theme.service';
 
 @Component({
   selector: 'app-login',
@@ -16,11 +18,16 @@ import { AuthService } from '../../core/services/auth.service';
   imports: [
     ReactiveFormsModule,
     MatCardModule, MatFormFieldModule, MatInputModule,
-    MatButtonModule, MatIconModule, MatProgressSpinnerModule,
+    MatButtonModule, MatIconModule, MatProgressSpinnerModule, MatTooltipModule,
     TranslatePipe,
   ],
   template: `
     <div class="login-page">
+      <button mat-icon-button class="theme-toggle-fab"
+              (click)="themeService.toggle()"
+              [matTooltip]="(themeService.currentTheme() === 'dark' ? 'user.lightMode' : 'user.darkMode') | translate">
+        <mat-icon>{{ themeService.currentTheme() === 'dark' ? 'light_mode' : 'dark_mode' }}</mat-icon>
+      </button>
       <mat-card class="login-card">
         <mat-card-header>
           <mat-card-title>{{ 'auth.title' | translate }}</mat-card-title>
@@ -63,12 +70,19 @@ import { AuthService } from '../../core/services/auth.service';
   `,
   styles: [`
     .login-page {
+      position: relative;
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 16px;
       background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
+    }
+    .theme-toggle-fab {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      color: rgba(255, 255, 255, 0.8);
     }
     .login-card { width: 100%; max-width: 360px; padding: 16px; }
     mat-card-header { margin-bottom: 24px; }
@@ -83,6 +97,7 @@ export class LoginComponent {
   private auth = inject(AuthService);
   private router = inject(Router);
   private translate = inject(TranslateService);
+  themeService = inject(ThemeService);
 
   form = this.fb.nonNullable.group({
     username: ['', Validators.required],

@@ -36,7 +36,10 @@
   },
   "user": {
     "logout": "Log out",
-    "language": "Language"
+    "language": "Language",
+    "theme": "Theme",
+    "lightMode": "Light mode",
+    "darkMode": "Dark mode"
   },
   "auth": {
     "title": "Eisteddfod Global",
@@ -44,7 +47,8 @@
     "username": "Username",
     "password": "Password",
     "login": "Log in",
-    "loginError": "Login error"
+    "loginError": "Login error",
+    "sessionExpired": "Your session has expired. Please log in again."
   },
   "dashboard": {
     "title": "Dashboard",

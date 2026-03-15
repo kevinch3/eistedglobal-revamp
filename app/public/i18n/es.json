@@ -36,7 +36,10 @@
   },
   "user": {
     "logout": "Cerrar sesión",
-    "language": "Idioma"
+    "language": "Idioma",
+    "theme": "Tema",
+    "lightMode": "Modo claro",
+    "darkMode": "Modo oscuro"
   },
   "auth": {
     "title": "Eisteddfod Global",
@@ -44,7 +47,8 @@
     "username": "Usuario",
     "password": "Contraseña",
     "login": "Ingresar",
-    "loginError": "Error al iniciar sesión"
+    "loginError": "Error al iniciar sesión",
+    "sessionExpired": "Tu sesión ha expirado. Por favor, iniciá sesión de nuevo."
   },
   "dashboard": {
     "title": "Panel Principal",

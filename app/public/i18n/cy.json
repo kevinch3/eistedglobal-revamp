@@ -36,7 +36,10 @@
   },
   "user": {
     "logout": "Allgofnodi",
-    "language": "Iaith"
+    "language": "Iaith",
+    "theme": "Thema",
+    "lightMode": "Modd golau",
+    "darkMode": "Modd tywyll"
   },
   "auth": {
     "title": "Eisteddfod Global",
@@ -44,7 +47,8 @@
     "username": "Enw defnyddiwr",
     "password": "Cyfrinair",
     "login": "Mewngofnodi",
-    "loginError": "Gwall wrth fewngofnodi"
+    "loginError": "Gwall wrth fewngofnodi",
+    "sessionExpired": "Mae eich sesiwn wedi dod i ben. Mewngofnodwch eto."
   },
   "dashboard": {
     "title": "Dangosfwrdd",

@@ -8,6 +8,7 @@ import { provideTranslateService } from '@ngx-translate/core';
 import { routes } from './app.routes';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { LanguageService } from './core/services/language.service';
+import { ThemeService } from './core/services/theme.service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -27,6 +28,12 @@ export const appConfig: ApplicationConfig = {
       provide: APP_INITIALIZER,
       useFactory: (langService: LanguageService) => () => langService.init(),
       deps: [LanguageService],
+      multi: true,
+    },
+    {
+      provide: APP_INITIALIZER,
+      useFactory: (themeService: ThemeService) => () => themeService.init(),
+      deps: [ThemeService],
       multi: true,
     },
   ],

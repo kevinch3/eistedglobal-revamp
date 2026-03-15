@@ -10,9 +10,11 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslatePipe } from '@ngx-translate/core';
 import { AuthService } from '../../../core/services/auth.service';
 import { LanguageService, SupportedLang } from '../../../core/services/language.service';
+import { ThemeService } from '../../../core/services/theme.service';
 
 @Component({
   selector: 'app-shell',
@@ -20,7 +22,7 @@ import { LanguageService, SupportedLang } from '../../../core/services/language.
   imports: [
     RouterOutlet, RouterLink, RouterLinkActive,
     MatToolbarModule, MatSidenavModule, MatListModule,
-    MatIconModule, MatButtonModule, MatMenuModule, MatDividerModule,
+    MatIconModule, MatButtonModule, MatMenuModule, MatDividerModule, MatTooltipModule,
     TranslatePipe,
   ],
   template: `
@@ -51,6 +53,12 @@ import { LanguageService, SupportedLang } from '../../../core/services/language.
             </button>
           }
           <span class="spacer"></span>
+
+          <!-- Theme toggle -->
+          <button mat-icon-button (click)="themeService.toggle()"
+                  [matTooltip]="(themeService.currentTheme() === 'dark' ? 'user.lightMode' : 'user.darkMode') | translate">
+            <mat-icon>{{ themeService.currentTheme() === 'dark' ? 'light_mode' : 'dark_mode' }}</mat-icon>
+          </button>
 
           <!-- User menu button -->
           <button mat-button [matMenuTriggerFor]="userMenu" class="user-btn">
@@ -84,6 +92,18 @@ import { LanguageService, SupportedLang } from '../../../core/services/language.
                 {{ lang.label }}
               </button>
             }
+
+            <mat-divider />
+
+            <!-- Theme section -->
+            <div class="menu-section-label" (click)="$event.stopPropagation()">
+              <mat-icon class="section-icon">palette</mat-icon>
+              {{ 'user.theme' | translate }}
+            </div>
+            <button mat-menu-item (click)="themeService.toggle()">
+              <mat-icon>{{ themeService.currentTheme() === 'dark' ? 'light_mode' : 'dark_mode' }}</mat-icon>
+              {{ (themeService.currentTheme() === 'dark' ? 'user.lightMode' : 'user.darkMode') | translate }}
+            </button>
 
             <mat-divider />
 
@@ -164,6 +184,7 @@ import { LanguageService, SupportedLang } from '../../../core/services/language.
 export class ShellComponent {
   auth = inject(AuthService);
   langService = inject(LanguageService);
+  themeService = inject(ThemeService);
   private bp = inject(BreakpointObserver);
 
   isHandset = toSignal(
