@@ -109,12 +109,12 @@ import { RegistrationDialogComponent } from './registration-dialog.component';
   `,
   styles: [`
     .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 8px; }
-    .page-title { font-size: 1.8rem; font-weight: 600; color: #1a237e; margin: 0; }
+    .page-title { font-size: 1.8rem; font-weight: 600; color: var(--app-title-color); margin: 0; }
     .filters { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
     .full-width { width: 100%; }
     .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-    .no-data { padding: 24px; text-align: center; color: #999; }
-    code { background: #f0f0f0; padding: 2px 6px; border-radius: 4px; font-size: 0.85rem; }
+    .no-data { padding: 24px; text-align: center; color: var(--app-text-muted); }
+    code { background: var(--app-code-bg, #f0f0f0); padding: 2px 6px; border-radius: 4px; font-size: 0.85rem; }
   `],
 })
 export class RegistrationsComponent implements OnInit {

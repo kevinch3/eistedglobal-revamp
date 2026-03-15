@@ -77,7 +77,7 @@ import { Edition } from '../../core/models';
   `,
   styles: [`
     .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 8px; }
-    .page-title { font-size: 1.8rem; font-weight: 600; color: #1a237e; margin: 0; }
+    .page-title { font-size: 1.8rem; font-weight: 600; color: var(--app-title-color); margin: 0; }
     .add-card { margin-bottom: 20px; }
     .add-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
     .add-row mat-form-field { width: 180px; }

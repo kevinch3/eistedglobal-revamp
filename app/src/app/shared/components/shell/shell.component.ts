@@ -158,7 +158,7 @@ import { ThemeService } from '../../../core/services/theme.service';
     .profile-avatar { font-size: 2.5rem; width: 40px; height: 40px; color: #5c6bc0; }
     .profile-info { display: flex; flex-direction: column; }
     .profile-name { font-weight: 600; font-size: 0.95rem; }
-    .profile-username { font-size: 0.8rem; color: #888; }
+    .profile-username { font-size: 0.8rem; opacity: 0.6; }
 
     /* Language section label */
     .menu-section-label {
@@ -168,7 +168,7 @@ import { ThemeService } from '../../../core/services/theme.service';
       padding: 8px 16px 4px;
       font-size: 0.75rem;
       font-weight: 600;
-      color: #888;
+      opacity: 0.6;
       text-transform: uppercase;
       letter-spacing: 0.5px;
       cursor: default;
