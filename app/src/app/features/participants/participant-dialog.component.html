@@ -1,0 +1,70 @@
+<h2 mat-dialog-title>{{ (data ? 'participants.dialog.titleEdit' : 'participants.dialog.titleNew') | translate }}</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="form" class="form-grid">
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'participants.dialog.type' | translate }}</mat-label>
+      <mat-select formControlName="type">
+        <mat-option value="IND">{{ 'common.individual' | translate }}</mat-option>
+        <mat-option value="GRU">{{ 'common.group' | translate }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'participants.dialog.name' | translate }}</mat-label>
+      <input matInput formControlName="name" />
+    </mat-form-field>
+
+    <mat-slide-toggle formControlName="active" class="full-width status-toggle">
+      {{ 'participants.dialog.active' | translate }}
+    </mat-slide-toggle>
+
+    @if (form.value.type === 'IND') {
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'participants.dialog.surname' | translate }}</mat-label>
+        <input matInput formControlName="surname" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'participants.dialog.document' | translate }}</mat-label>
+        <input matInput formControlName="document_id" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'participants.dialog.birthdate' | translate }}</mat-label>
+        <input matInput type="date" formControlName="birth_date" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'participants.dialog.phone' | translate }}</mat-label>
+        <input matInput formControlName="phone" />
+      </mat-form-field>
+    }
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'participants.dialog.nationality' | translate }}</mat-label>
+      <mat-select formControlName="nationality">
+        @for (n of nationalities; track n.value) {
+          <mat-option [value]="n.value">{{ n.key | translate }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'participants.dialog.residence' | translate }}</mat-label>
+      <input matInput formControlName="residence" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>{{ 'participants.dialog.email' | translate }}</mat-label>
+      <input matInput type="email" formControlName="email" />
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>{{ 'common.cancel' | translate }}</button>
+  <button mat-raised-button color="primary" (click)="save()" [disabled]="form.invalid || saving()">
+    {{ (saving() ? 'common.saving' : 'common.save') | translate }}
+  </button>
+</mat-dialog-actions>

@@ -1,0 +1,59 @@
+<h2 mat-dialog-title>{{ 'registrations.dialog.title' | translate }}</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="form" class="form-col">
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'registrations.dialog.participant' | translate }}</mat-label>
+      <input matInput [formControl]="participantCtrl"
+             [matAutocomplete]="participantAuto"
+             [placeholder]="'registrations.dialog.searchPlaceholder' | translate" />
+      <mat-autocomplete #participantAuto="matAutocomplete"
+                        [displayWith]="displayParticipant"
+                        (optionSelected)="onParticipantSelected($event)">
+        @for (p of filteredParticipants; track p.id) {
+          <mat-option [value]="p">
+            {{ p.surname ? p.surname + ', ' + p.name : p.name }}
+          </mat-option>
+        }
+      </mat-autocomplete>
+    </mat-form-field>
+
+    <mat-checkbox [checked]="showYearSelect" (change)="toggleYearSelect($event.checked)">
+      {{ 'registrations.dialog.otherEdition' | translate: { year: currentYear } }}
+    </mat-checkbox>
+
+    @if (showYearSelect) {
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'registrations.dialog.year' | translate }}</mat-label>
+        <mat-select formControlName="year" (selectionChange)="onYearChange()">
+          @for (e of editions(); track e.year) {
+            <mat-option [value]="e.year">{{ e.year }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    }
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'registrations.dialog.competition' | translate }}</mat-label>
+      <mat-select formControlName="competition_id">
+        @for (c of competitions(); track c.id) {
+          <mat-option [value]="c.id">{{ c.id }} – {{ c.description }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'registrations.dialog.pseudonym' | translate }}</mat-label>
+      <input matInput formControlName="pseudonym" />
+    </mat-form-field>
+
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>{{ 'common.cancel' | translate }}</button>
+  <button mat-raised-button color="primary" (click)="save()" [disabled]="form.invalid || saving()">
+    {{ (saving() ? 'common.saving' : 'registrations.dialog.submit') | translate }}
+  </button>
+</mat-dialog-actions>

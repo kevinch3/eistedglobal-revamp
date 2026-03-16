@@ -1,0 +1,7 @@
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
+.full-width { grid-column: 1 / -1; }
+mat-form-field { width: 100%; }
+@media (max-width: 599px) {
+  .form-grid { grid-template-columns: 1fr; }
+  .full-width { grid-column: auto; }
+}

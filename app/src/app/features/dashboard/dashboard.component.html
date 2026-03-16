@@ -1,0 +1,27 @@
+<h1 class="page-title">{{ 'dashboard.title' | translate }}</h1>
+
+<div class="stats-grid">
+  @for (stat of stats(); track stat.key) {
+    <mat-card class="stat-card" [routerLink]="stat.route">
+      <mat-card-content>
+        <mat-icon class="stat-icon" [style.color]="stat.color">{{ stat.icon }}</mat-icon>
+        <div class="stat-value">{{ stat.value }}</div>
+        <div class="stat-label">{{ stat.key | translate }}</div>
+      </mat-card-content>
+    </mat-card>
+  }
+</div>
+
+<div class="quick-links">
+  <h2>{{ 'dashboard.quickAccess' | translate }}</h2>
+  <div class="links-grid">
+    @for (item of quickLinks; track item.labelKey) {
+      <mat-card class="link-card" [routerLink]="item.route">
+        <mat-card-content>
+          <mat-icon>{{ item.icon }}</mat-icon>
+          <span>{{ item.labelKey | translate }}</span>
+        </mat-card-content>
+      </mat-card>
+    }
+  </div>
+</div>

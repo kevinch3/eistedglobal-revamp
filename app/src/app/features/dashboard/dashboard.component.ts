@@ -9,50 +9,8 @@ import { ApiService } from '../../core/services/api.service';
   selector: 'app-dashboard',
   standalone: true,
   imports: [MatCardModule, MatIconModule, RouterLink, TranslatePipe],
-  template: `
-    <h1 class="page-title">{{ 'dashboard.title' | translate }}</h1>
-
-    <div class="stats-grid">
-      @for (stat of stats(); track stat.key) {
-        <mat-card class="stat-card" [routerLink]="stat.route">
-          <mat-card-content>
-            <mat-icon class="stat-icon" [style.color]="stat.color">{{ stat.icon }}</mat-icon>
-            <div class="stat-value">{{ stat.value }}</div>
-            <div class="stat-label">{{ stat.key | translate }}</div>
-          </mat-card-content>
-        </mat-card>
-      }
-    </div>
-
-    <div class="quick-links">
-      <h2>{{ 'dashboard.quickAccess' | translate }}</h2>
-      <div class="links-grid">
-        @for (item of quickLinks; track item.labelKey) {
-          <mat-card class="link-card" [routerLink]="item.route">
-            <mat-card-content>
-              <mat-icon>{{ item.icon }}</mat-icon>
-              <span>{{ item.labelKey | translate }}</span>
-            </mat-card-content>
-          </mat-card>
-        }
-      </div>
-    </div>
-  `,
-  styles: [`
-    .page-title { font-size: 1.8rem; font-weight: 600; margin-bottom: 24px; color: var(--app-title-color); }
-    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 32px; }
-    .stat-card { cursor: pointer; transition: box-shadow .2s; }
-    .stat-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,.15); }
-    .stat-card mat-card-content { text-align: center; padding: 24px 16px; }
-    .stat-icon { font-size: 2.5rem; width: 40px; height: 40px; margin-bottom: 8px; }
-    .stat-value { font-size: 2rem; font-weight: 700; }
-    .stat-label { color: var(--app-text-secondary); font-size: .9rem; }
-    h2 { margin-bottom: 16px; color: var(--app-text-heading); }
-    .links-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
-    .link-card { cursor: pointer; }
-    .link-card mat-card-content { display: flex; align-items: center; gap: 12px; padding: 16px; }
-    .link-card mat-icon { color: var(--app-accent-icon); }
-  `],
+  templateUrl: './dashboard.component.html',
+  styleUrl: './dashboard.component.css',
 })
 export class DashboardComponent implements OnInit {
   private api = inject(ApiService);

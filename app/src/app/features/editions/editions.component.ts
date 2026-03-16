@@ -20,70 +20,8 @@ import { Edition } from '../../core/models';
     MatFormFieldModule, MatInputModule, MatListModule, MatSnackBarModule, MatExpansionModule,
     TranslatePipe,
   ],
-  template: `
-    <div class="page-header">
-      <h1 class="page-title">{{ 'editions.title' | translate }}</h1>
-      <button mat-raised-button color="primary" (click)="showAdd = !showAdd">
-        <mat-icon>add</mat-icon> {{ 'editions.new' | translate }}
-      </button>
-    </div>
-
-    @if (showAdd) {
-      <mat-card class="add-card">
-        <mat-card-content>
-          <form [formGroup]="addForm" (ngSubmit)="createEdition()" class="add-row">
-            <mat-form-field appearance="outline">
-              <mat-label>{{ 'editions.form.year' | translate }}</mat-label>
-              <input matInput type="number" formControlName="year" [placeholder]="'editions.form.yearPlaceholder' | translate" />
-            </mat-form-field>
-            <button mat-raised-button color="primary" type="submit" [disabled]="addForm.invalid">
-              {{ 'common.create' | translate }}
-            </button>
-            <button mat-button type="button" (click)="showAdd = false">{{ 'common.cancel' | translate }}</button>
-          </form>
-        </mat-card-content>
-      </mat-card>
-    }
-
-    <mat-accordion>
-      @for (e of editions(); track e.year) {
-        <mat-expansion-panel>
-          <mat-expansion-panel-header>
-            <mat-panel-title>{{ 'editions.panel' | translate: { year: e.year } }}</mat-panel-title>
-          </mat-expansion-panel-header>
-
-          <form class="edition-form" (ngSubmit)="saveEdition(e)">
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>{{ 'editions.form.committee' | translate }}</mat-label>
-              <textarea matInput [(ngModel)]="e.committee" [name]="'committee-'+e.year" rows="4"></textarea>
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>{{ 'editions.form.committeeImg' | translate }}</mat-label>
-              <input matInput [(ngModel)]="e.committee_img" [name]="'committee_img-'+e.year" />
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>{{ 'editions.form.presenters' | translate }}</mat-label>
-              <textarea matInput [(ngModel)]="e.presenters" [name]="'presenters-'+e.year" rows="3"></textarea>
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>{{ 'editions.form.presentersImg' | translate }}</mat-label>
-              <input matInput [(ngModel)]="e.presenters_img" [name]="'presenters_img-'+e.year" />
-            </mat-form-field>
-            <button mat-raised-button color="primary" type="submit">{{ 'common.save' | translate }}</button>
-          </form>
-        </mat-expansion-panel>
-      }
-    </mat-accordion>
-  `,
-  styles: [`
-    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 8px; }
-    .page-title { font-size: 1.8rem; font-weight: 600; color: var(--app-title-color); margin: 0; }
-    .add-card { margin-bottom: 20px; }
-    .add-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
-    .add-row mat-form-field { width: 180px; }
-    .edition-form { display: flex; flex-direction: column; gap: 4px; }
-    .full-width { width: 100%; }
-  `],
+  templateUrl: './editions.component.html',
+  styleUrl: './editions.component.css',
 })
 export class EditionsComponent implements OnInit {
   private api = inject(ApiService);

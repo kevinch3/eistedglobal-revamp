@@ -1,0 +1,70 @@
+<h2 mat-dialog-title>{{ (data ? 'works.dialog.titleEdit' : 'works.dialog.titleNew') | translate }}</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="form" class="form-grid">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>{{ 'works.dialog.title' | translate }}</mat-label>
+      <input matInput formControlName="title" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'works.dialog.participant' | translate }}</mat-label>
+      <input matInput [formControl]="participantCtrl"
+             [matAutocomplete]="participantAuto"
+             [placeholder]="'works.dialog.searchPlaceholder' | translate" />
+      <mat-autocomplete #participantAuto="matAutocomplete"
+                        [displayWith]="displayParticipant"
+                        (optionSelected)="onParticipantSelected($event)">
+        @for (p of filteredParticipants; track p.id) {
+          <mat-option [value]="p">
+            {{ p.surname ? p.surname + ', ' + p.name : p.name }}
+          </mat-option>
+        }
+      </mat-autocomplete>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'works.dialog.competition' | translate }}</mat-label>
+      <mat-select formControlName="competition_id">
+        @for (c of competitions(); track c.id) {
+          <mat-option [value]="c.id">{{ c.id }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'works.dialog.displayName' | translate }}</mat-label>
+      <input matInput formControlName="display_name" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'works.dialog.placement' | translate }}</mat-label>
+      <mat-select formControlName="placement">
+        <mat-option value="">{{ 'works.dialog.noPlacement' | translate }}</mat-option>
+        <mat-option value="1">{{ 'works.dialog.place1' | translate }}</mat-option>
+        <mat-option value="2">{{ 'works.dialog.place2' | translate }}</mat-option>
+        <mat-option value="3">{{ 'works.dialog.place3' | translate }}</mat-option>
+        <mat-option value="mencion">{{ 'works.dialog.mention' | translate }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>{{ 'works.dialog.youtube' | translate }}</mat-label>
+      <input matInput formControlName="video_url"
+             [placeholder]="'works.dialog.youtubePlaceholder' | translate"
+             (input)="normalizeVideoUrl($event)" />
+      @if (form.get('video_url')?.value) {
+        <mat-hint>
+          https://youtube.com/watch?v={{ form.get('video_url')?.value }}
+        </mat-hint>
+      }
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>{{ 'common.cancel' | translate }}</button>
+  <button mat-raised-button color="primary" (click)="save()" [disabled]="form.invalid || saving()">
+    {{ (saving() ? 'common.saving' : 'common.save') | translate }}
+  </button>
+</mat-dialog-actions>

@@ -21,76 +21,8 @@ import { ThemeService } from '../../core/services/theme.service';
     MatButtonModule, MatIconModule, MatProgressSpinnerModule, MatTooltipModule,
     TranslatePipe,
   ],
-  template: `
-    <div class="login-page">
-      <button mat-icon-button class="theme-toggle-fab"
-              (click)="themeService.toggle()"
-              [matTooltip]="(themeService.currentTheme() === 'dark' ? 'user.lightMode' : 'user.darkMode') | translate">
-        <mat-icon>{{ themeService.currentTheme() === 'dark' ? 'light_mode' : 'dark_mode' }}</mat-icon>
-      </button>
-      <mat-card class="login-card">
-        <mat-card-header>
-          <mat-card-title>{{ 'auth.title' | translate }}</mat-card-title>
-          <mat-card-subtitle>{{ 'auth.subtitle' | translate }}</mat-card-subtitle>
-        </mat-card-header>
-
-        <mat-card-content>
-          <form [formGroup]="form" (ngSubmit)="onSubmit()">
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>{{ 'auth.username' | translate }}</mat-label>
-              <mat-icon matPrefix>person</mat-icon>
-              <input matInput formControlName="username" autocomplete="username" />
-            </mat-form-field>
-
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>{{ 'auth.password' | translate }}</mat-label>
-              <mat-icon matPrefix>lock</mat-icon>
-              <input matInput [type]="hidePass() ? 'password' : 'text'" formControlName="password" autocomplete="current-password" />
-              <button mat-icon-button matSuffix type="button" (click)="hidePass.set(!hidePass())">
-                <mat-icon>{{ hidePass() ? 'visibility_off' : 'visibility' }}</mat-icon>
-              </button>
-            </mat-form-field>
-
-            @if (error()) {
-              <p class="error-msg">{{ error() }}</p>
-            }
-
-            <button mat-raised-button color="primary" type="submit"
-                    class="full-width" [disabled]="loading()">
-              @if (loading()) {
-                <mat-spinner diameter="20" />
-              } @else {
-                {{ 'auth.login' | translate }}
-              }
-            </button>
-          </form>
-        </mat-card-content>
-      </mat-card>
-    </div>
-  `,
-  styles: [`
-    .login-page {
-      position: relative;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-      background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
-    }
-    .theme-toggle-fab {
-      position: absolute;
-      top: 16px;
-      right: 16px;
-      color: rgba(255, 255, 255, 0.8);
-    }
-    .login-card { width: 100%; max-width: 360px; padding: 16px; }
-    mat-card-header { margin-bottom: 24px; }
-    mat-card-title { font-size: 1.5rem !important; }
-    .full-width { width: 100%; margin-bottom: 12px; }
-    .error-msg { color: #f44336; font-size: 0.85rem; margin-bottom: 8px; }
-    button[type=submit] { height: 44px; margin-top: 8px; }
-  `],
+  templateUrl: './login.component.html',
+  styleUrl: './login.component.css',
 })
 export class LoginComponent {
   private fb = inject(FormBuilder);

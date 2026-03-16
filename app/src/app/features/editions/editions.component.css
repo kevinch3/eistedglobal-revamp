@@ -1,0 +1,7 @@
+.page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 8px; }
+.page-title { font-size: 1.8rem; font-weight: 600; color: var(--app-title-color); margin: 0; }
+.add-card { margin-bottom: 20px; }
+.add-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.add-row mat-form-field { width: 180px; }
+.edition-form { display: flex; flex-direction: column; gap: 4px; }
+.full-width { width: 100%; }
