@@ -49,7 +49,12 @@ export class ParticipantsComponent implements OnInit {
   }
 
   loadParticipants(): void {
-    const params = this.typeFilter ? { type: this.typeFilter } : undefined;
+    // This table has an `active` column and renders an inactive chip, so it
+    // wants the soft-deleted rows the API now hides by default (B3).
+    const params = {
+      includeInactive: '1' as const,
+      ...(this.typeFilter ? { type: this.typeFilter } : {}),
+    };
     this.api.getParticipants(params).subscribe((data) => {
       this.dataSource.data = data;
       this.dataSource.paginator = this.paginator;

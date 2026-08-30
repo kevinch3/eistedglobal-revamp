@@ -26,7 +26,7 @@ export class ApiService {
   constructor(private http: HttpClient) {}
 
   // ---------- Participants ----------
-  getParticipants(params?: { type?: string; q?: string }): Observable<Participant[]> {
+  getParticipants(params?: { type?: string; q?: string; includeInactive?: '1' }): Observable<Participant[]> {
     return this.http.get<Participant[]>(`${this.base}/participants`, { params: params as Record<string, string> });
   }
   getParticipant(id: number): Observable<Participant> {
@@ -97,8 +97,9 @@ export class ApiService {
   updateRegistration(id: number, data: Partial<Registration>): Observable<Registration> {
     return this.http.put<Registration>(`${this.base}/registrations/${id}`, data);
   }
-  dropRegistration(id: number): Observable<{ message: string }> {
-    return this.http.patch<{ message: string }>(`${this.base}/registrations/${id}/drop`, {});
+  /** Withdraws a registration; the row remains. 204, no body. */
+  dropRegistration(id: number): Observable<void> {
+    return this.http.patch<void>(`${this.base}/registrations/${id}/drop`, {});
   }
 
   // ---------- Works ----------
