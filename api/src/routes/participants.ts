@@ -20,9 +20,16 @@ function normalizeActive(value: unknown, fallback = 1): number {
 
 // GET /api/participants?type=IND|GRU&q=search
 router.get('/', (req: AuthRequest, res: Response) => {
-  const { type, q } = req.query as { type?: string; q?: string };
+  const { type, q, includeInactive } = req.query as {
+    type?: string; q?: string; includeInactive?: string;
+  };
   let sql = 'SELECT * FROM participant WHERE 1=1';
   const params: unknown[] = [];
+
+  // Deleting a participant is a soft delete, but the list used to return them
+  // anyway, so every caller had to filter client-side or silently show the
+  // dead. Active-only is the sane default; ?includeInactive=1 opts back in (B3).
+  if (includeInactive !== '1') sql += ' AND active = 1';
 
   if (type) {
     sql += ' AND type = ?';

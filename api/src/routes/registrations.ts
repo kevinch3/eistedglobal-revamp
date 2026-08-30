@@ -82,7 +82,9 @@ router.patch('/:id/drop', (req: Request, res: Response) => {
     .prepare('UPDATE registration SET dropped = 1 WHERE id = ?')
     .run(req.params.id);
   if (result.changes === 0) { res.status(404).json({ error: 'Registration not found' }); return; }
-  res.json({ message: 'Registration dropped' });
+  // 204, matching every other mutation. This used to be 200 with a message,
+  // which meant clients had to special-case it for no reason (B6).
+  res.status(204).send();
 });
 
 // DELETE /api/registrations/:id — hard delete.

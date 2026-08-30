@@ -78,7 +78,7 @@ describe('RegistrationsComponent', () => {
 
   it('should call dropRegistration when confirmed', () => {
     (window.confirm as ReturnType<typeof vi.fn>).mockReturnValue(true);
-    vi.spyOn(apiService, 'dropRegistration').mockReturnValue(of({ message: 'ok' }));
+    vi.spyOn(apiService, 'dropRegistration').mockReturnValue(of(undefined));
     vi.spyOn(component, 'load').mockImplementation(() => {});
     component.drop({ id: 1, participant_id: 1, competition_id: 'C1', year: 2025 });
     expect(apiService.dropRegistration).toHaveBeenCalledWith(1);
