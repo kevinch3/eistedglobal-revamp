@@ -2,15 +2,16 @@
   "name": "eistedglobal-api",
   "version": "1.0.0",
   "description": "Eistedglobal REST API - Express.js + TypeScript + SQLite",
-  "main": "dist/app.js",
+  "main": "dist/server.js",
   "scripts": {
-    "dev": "ts-node-dev --respawn --transpile-only src/app.ts",
-    "build": "tsc",
-    "start": "node dist/app.js",
+    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "build": "tsc && npm run copy:schema",
+    "start": "node dist/server.js",
     "seed": "ts-node src/config/seed.ts",
     "seed:demo": "ts-node src/config/seed.demo.ts",
     "migrate": "ts-node src/config/migrate.ts",
-    "postinstall": "npm rebuild better-sqlite3"
+    "postinstall": "npm rebuild better-sqlite3",
+    "copy:schema": "node -e \"require('fs').mkdirSync('dist/config',{recursive:true});require('fs').copyFileSync('src/config/schema.sql','dist/config/schema.sql')\""
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

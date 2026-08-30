@@ -1,3 +1,6 @@
+// Builds and exports the Express app WITHOUT listening, so tests and tooling can
+// import it (supertest, route introspection, contract checks). The process entry
+// point is server.ts — see package.json `main`/`start`.
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
@@ -15,9 +18,8 @@ import registrationsRoutes from './routes/registrations';
 import worksRoutes from './routes/works';
 
 const app = express();
-const PORT = parseInt(process.env.PORT || '3000', 10);
 
-// Initialize DB on startup
+// Open the database (and create the schema if missing) before serving.
 getDb();
 
 app.use(helmet());
@@ -45,10 +47,5 @@ app.use((_req, res) => {
 });
 
 app.use(errorHandler);
-
-app.listen(PORT, () => {
-  console.log(`\nEistedGlobal API running on http://localhost:${PORT}`);
-  console.log('Press Ctrl+C to stop\n');
-});
 
 export default app;
