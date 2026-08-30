@@ -1,0 +1,13 @@
+# Lint config for openapi.yaml. Kept minimal and each waiver justified, so
+# `npx redocly lint` is a clean gate rather than a wall of accepted noise.
+extends:
+  - recommended
+
+rules:
+  # /health has no failure mode to document — it is up or unreachable.
+  operation-4xx-response: off
+  # Private repository; no license to declare.
+  info-license-strict: off
+apis:
+  main:
+    root: openapi.yaml

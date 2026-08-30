@@ -11,7 +11,10 @@
     "seed:demo": "ts-node src/config/seed.demo.ts",
     "migrate": "ts-node src/config/migrate.ts",
     "postinstall": "npm rebuild better-sqlite3",
-    "copy:schema": "node -e \"require('fs').mkdirSync('dist/config',{recursive:true});require('fs').copyFileSync('src/config/schema.sql','dist/config/schema.sql')\""
+    "copy:schema": "node -e \"require('fs').mkdirSync('dist/config',{recursive:true});require('fs').copyFileSync('src/config/schema.sql','dist/config/schema.sql')\"",
+    "contract:lint": "redocly lint",
+    "contract:routes": "ts-node --transpile-only scripts/check-spec-routes.ts",
+    "contract:check": "npm run contract:lint && npm run contract:routes"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -32,6 +35,7 @@
     "@types/node": "^20.12.7",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
-    "typescript": "^5.4.5"
+    "typescript": "^5.4.5",
+    "@redocly/cli": "^1.25.0"
   }
 }

@@ -1,0 +1,39 @@
+name: API contract
+
+# Guards openapi.yaml against drift. The spec is descriptive — it records the API
+# as it behaves — so a failure here means the spec and the implementation have
+# diverged and one of them needs updating, together, in the same change.
+
+on:
+  push:
+    branches: [main]
+    paths: ['api/**']
+  pull_request:
+    paths: ['api/**']
+  workflow_dispatch:
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: api/package-lock.json
+      - run: npm ci
+      - name: Lint the OpenAPI description
+        run: npm run contract:lint
+      - name: Spec and implementation must serve the same routes
+        run: npm run contract:routes
+      - name: Build (and confirm schema.sql reaches dist/)
+        run: |
+          npm run build
+          test -f dist/config/schema.sql || {
+            echo "::error::schema.sql missing from dist/ — the compiled server cannot boot"
+            exit 1
+          }
