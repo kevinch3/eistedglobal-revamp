@@ -30,6 +30,8 @@ jobs:
         run: npm run contract:lint
       - name: Spec and implementation must serve the same routes
         run: npm run contract:routes
+      - name: Generated types must not be stale
+        run: node scripts/gen-types.mjs --check
       - name: Build (and confirm schema.sql reaches dist/)
         run: |
           npm run build
