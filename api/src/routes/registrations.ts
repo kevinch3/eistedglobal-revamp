@@ -8,14 +8,22 @@ router.use(requireAuth);
 
 // GET /api/registrations?year=2024&comp=CH202401&participant=5
 router.get('/', (req: Request, res: Response) => {
-  const { year, comp, participant } = req.query as { year?: string; comp?: string; participant?: string };
+  const { year, comp, participant, dropped } = req.query as {
+    year?: string; comp?: string; participant?: string; dropped?: string;
+  };
+
+  // Dropped registrations were unconditionally hidden with no way to see them.
+  // Default stays 0 so existing callers are unaffected.
+  const droppedFilter =
+    dropped === 'all' ? '' : dropped === '1' ? ' AND r.dropped = 1' : ' AND r.dropped = 0';
+
   let sql = `
     SELECT r.*, p.name, p.surname, p.type,
            c.description AS comp_description, c.language
     FROM registration r
     JOIN participant p ON r.participant_id = p.id
     JOIN competition c ON r.competition_id = c.id
-    WHERE r.dropped = 0
+    WHERE 1=1${droppedFilter}
   `;
   const params: unknown[] = [];
 
@@ -75,6 +83,17 @@ router.patch('/:id/drop', (req: Request, res: Response) => {
     .run(req.params.id);
   if (result.changes === 0) { res.status(404).json({ error: 'Registration not found' }); return; }
   res.json({ message: 'Registration dropped' });
+});
+
+// DELETE /api/registrations/:id — hard delete.
+// Distinct from PATCH /:id/drop, which withdraws but keeps the row. Without
+// this there was no way to remove a registration at all, so a competition that
+// ever had one could never be deleted and sandbox data accumulated forever.
+// Nothing references registration(id), so removing the row is safe.
+router.delete('/:id', (req: Request, res: Response) => {
+  const result = getDb().prepare('DELETE FROM registration WHERE id = ?').run(req.params.id);
+  if (result.changes === 0) { res.status(404).json({ error: 'Registration not found' }); return; }
+  res.status(204).send();
 });
 
 export default router;

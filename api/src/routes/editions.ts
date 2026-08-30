@@ -67,4 +67,14 @@ router.post('/:id/uploads', (req: Request, res: Response) => {
   res.status(201).json(db.prepare('SELECT * FROM upload WHERE id = ?').get(result.lastInsertRowid));
 });
 
+// DELETE /api/editions/:id — hard delete, no cascade.
+// competition.year and upload.year reference edition(year), so an edition with
+// any content is rejected by the foreign key and reported as 409 (see
+// mapSqliteError). Deleting a whole year's data is deliberately not offered.
+router.delete('/:id', (req: Request, res: Response) => {
+  const result = getDb().prepare('DELETE FROM edition WHERE year = ?').run(req.params.id);
+  if (result.changes === 0) { res.status(404).json({ error: 'Edition not found' }); return; }
+  res.status(204).send();
+});
+
 export default router;
