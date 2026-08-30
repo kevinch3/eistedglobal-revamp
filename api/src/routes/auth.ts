@@ -3,10 +3,12 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { getDb } from '../config/database';
 import { requireAuth, AuthRequest } from '../middleware/auth';
+import { validateBody } from '../middleware/validate';
+import { loginSchema } from '../schemas';
 
 const router = Router();
 
-router.post('/login', (req: Request, res: Response) => {
+router.post('/login', validateBody(loginSchema), (req: Request, res: Response) => {
   const { username, password } = req.body as { username?: string; password?: string };
   if (!username || !password) {
     res.status(400).json({ error: 'username and password are required' });

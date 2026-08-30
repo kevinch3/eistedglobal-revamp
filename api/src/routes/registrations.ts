@@ -2,6 +2,8 @@ import { Router, Request, Response } from 'express';
 import { getDb } from '../config/database';
 import { requireAuth } from '../middleware/auth';
 import { Registration } from '../types';
+import { validateBody } from '../middleware/validate';
+import { registrationCreateSchema, registrationUpdateSchema } from '../schemas';
 
 const router = Router();
 router.use(requireAuth);
@@ -49,7 +51,7 @@ router.get('/:id', (req: Request, res: Response) => {
 });
 
 // POST /api/registrations
-router.post('/', (req: Request, res: Response) => {
+router.post('/', validateBody(registrationCreateSchema), (req: Request, res: Response) => {
   const r = req.body as Registration;
   if (!r.participant_id || !r.competition_id || !r.year) {
     res.status(400).json({ error: 'participant_id, competition_id, and year are required' });
@@ -66,7 +68,7 @@ router.post('/', (req: Request, res: Response) => {
 });
 
 // PUT /api/registrations/:id
-router.put('/:id', (req: Request, res: Response) => {
+router.put('/:id', validateBody(registrationUpdateSchema), (req: Request, res: Response) => {
   const { competition_id, pseudonym } = req.body as { competition_id?: string; pseudonym?: string };
   const db = getDb();
   const result = db
