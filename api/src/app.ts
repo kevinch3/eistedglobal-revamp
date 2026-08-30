@@ -21,7 +21,8 @@ const PORT = parseInt(process.env.PORT || '3000', 10);
 getDb();
 
 app.use(helmet());
-app.use(cors({ origin: process.env.CORS_ORIGIN || 'http://localhost:4200', credentials: true }));
+const corsOrigins = (process.env.CORS_ORIGIN || 'http://localhost:4200').split(',').map(o => o.trim());
+app.use(cors({ origin: corsOrigins, credentials: true }));
 app.use(express.json());
 
 // Routes
