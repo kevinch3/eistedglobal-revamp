@@ -1,74 +1,42 @@
-export interface JwtPayload {
-  userId: number;
-  username: string;
-}
+/**
+ * Domain types, aliased from the generated contract so this file and the Angular
+ * app cannot drift apart again. Edit openapi.yaml, then `npm run contract:gen`.
+ *
+ * Import paths are unchanged, so route code needs no edits.
+ */
+import type { components } from './api.generated';
 
-export interface Participant {
-  id?: number;
-  name: string;
-  surname?: string;
-  document_id?: string;
-  birth_date?: string;
-  nationality?: string;
-  residence?: string;
-  email?: string;
-  phone?: string;
-  type: 'IND' | 'GRU';
-  active?: number;
-}
+type S = components['schemas'];
 
-export interface Edition {
-  year: number;
-  committee?: string;
-  committee_img?: string;
-  presenters?: string;
-  presenters_img?: string;
-}
+/* Response shapes — what the API returns. The list variants are supersets of the
+ * single-item ones (they carry extra JOIN-computed fields), so aliasing to the
+ * widest form keeps every existing usage type-checking. */
+export type Participant = S['Participant'];
+export type Category = S['Category'];
+export type Edition = S['Edition'];
+export type Competition = S['Competition'];
+export type Registration = S['RegistrationListItem'];
+export type Work = S['WorkListItem'];
+export type Upload = S['Upload'];
 
-export interface Category {
-  id?: number;
-  name: string;
-  name_welsh?: string;
-}
+/* Request shapes — what callers may send. These differ from the response types:
+ * server-generated ids, `registered_at`/`date`, and JOIN-computed fields such as
+ * `category_name` are absent. Prefer these when typing a request body. */
+export type ParticipantInput = S['ParticipantInput'];
+export type CategoryInput = S['CategoryInput'];
+export type EditionInput = S['EditionInput'];
+export type CompetitionInput = S['CompetitionInput'];
+export type CompetitionUpdate = S['CompetitionUpdate'];
+export type RegistrationInput = S['RegistrationInput'];
+export type WorkInput = S['WorkInput'];
+export type WorkUpdate = S['WorkUpdate'];
 
-export interface Competition {
-  id: string;
-  category_id: number;
-  category_name?: string;
-  category_name_welsh?: string;
-  description?: string;
-  language?: string;
-  year: number;
-  type: 'GRU' | 'IND';
-  extra_text?: string;
-  rank?: number;
-  preliminary?: string;
-}
+/* Vocabularies enforced by SQL CHECK constraints. */
+export type EntrantType = S['EntrantType'];
+export type Placement = S['Placement'];
+export type Language = S['Language'];
 
-export interface Registration {
-  id?: number;
-  participant_id: number;
-  name?: string;
-  surname?: string;
-  type?: string;
-  competition_id: string;
-  comp_description?: string;
-  pseudonym?: string;
-  registered_at?: string;
-  year: number;
-  dropped?: number;
-}
-
-export interface Work {
-  id?: number;
-  participant_id: number;
-  name?: string;
-  surname?: string;
-  display_name?: string;
-  placement?: '1' | '2' | '3' | 'mencion';
-  competition_id: string;
-  title: string;
-  date?: string;
-  video_url?: string;
-  photo_url?: string;
-}
+/* Auth */
+export type LoginResponse = S['LoginResponse'];
+export type JwtPayload = S['JwtPayload'];
+export type ApiError = S['Error'];

@@ -789,7 +789,7 @@ components:
         description: { type: [string, 'null'] }
         language: { $ref: '#/components/schemas/Language' }
         extra_text: { type: [string, 'null'] }
-        rank: { type: integer, default: 0 }
+        rank: { type: integer, description: 'Defaults to 0 when omitted.' }
         preliminary: { type: [string, 'null'] }
     CompetitionUpdate:
       type: object
@@ -800,7 +800,7 @@ components:
         description: { type: [string, 'null'] }
         language: { $ref: '#/components/schemas/Language' }
         extra_text: { type: [string, 'null'] }
-        rank: { type: integer }
+        rank: { type: [integer, 'null'] }
         preliminary: { type: [string, 'null'] }
     CompetitionRow:
       type: object

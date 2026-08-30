@@ -9,7 +9,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ApiService } from '../../core/services/api.service';
-import { Participant } from '../../core/models';
+import { Participant, ParticipantInput } from '../../core/models';
 
 const NATIONALITIES: { value: string; key: string }[] = [
   { value: 'Argentina', key: 'participants.nationalities.argentina' },
@@ -67,7 +67,8 @@ export class ParticipantDialogComponent {
     this.saving.set(true);
 
     const raw = this.form.getRawValue();
-    const payload: Participant = {
+    // A create/update body, not a response: `id` is server-generated.
+    const payload: ParticipantInput = {
       ...raw,
       active: raw.active ? 1 : 0,
     };

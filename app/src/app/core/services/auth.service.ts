@@ -11,7 +11,8 @@ export class AuthService {
   private readonly USER_KEY = 'eistedglobal_user';
 
   private _token = signal<string | null>(localStorage.getItem(this.TOKEN_KEY));
-  private _user = signal<{ name: string; username: string } | null>(
+  // `name` is nullable in the database — see LoginResponse in openapi.yaml.
+  private _user = signal<{ name: string | null; username: string } | null>(
     JSON.parse(localStorage.getItem(this.USER_KEY) || 'null')
   );
 

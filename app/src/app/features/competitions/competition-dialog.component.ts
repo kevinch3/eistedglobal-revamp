@@ -8,7 +8,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ApiService } from '../../core/services/api.service';
-import { Edition, Category, Competition } from '../../core/models';
+import { Edition, Category, Competition, CompetitionInput } from '../../core/models';
 
 const LANGUAGES: { value: string; key: string }[] = [
   { value: 'Cymraeg',   key: 'competitions.languages.cymraeg' },
@@ -66,7 +66,7 @@ export class CompetitionDialogComponent implements OnInit {
     if (this.form.invalid) return;
     this.saving.set(true);
 
-    const payload = this.form.getRawValue() as Competition;
+    const payload = this.form.getRawValue() as CompetitionInput;
     const op = this.data
       ? this.api.updateCompetition(this.data.id, payload)
       : this.api.createCompetition(payload);

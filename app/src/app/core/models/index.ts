@@ -1,75 +1,41 @@
-export interface LoginResponse {
-  token: string;
-  name: string;
-  username: string;
-}
+/**
+ * API models, aliased from the generated contract (api/openapi.yaml) so this file
+ * and the API's own types cannot drift apart again — they previously disagreed on
+ * `Category.id`, silently.
+ *
+ * Regenerate from the api/ folder: `npm run contract:gen`.
+ * Import paths are unchanged, so components and services need no edits.
+ */
+import type { components } from './api.generated';
 
-export interface Participant {
-  id?: number;
-  name: string;
-  surname?: string;
-  document_id?: string;
-  birth_date?: string;
-  nationality?: string;
-  residence?: string;
-  email?: string;
-  phone?: string;
-  type: 'IND' | 'GRU';
-  active?: number;
-}
+type S = components['schemas'];
 
-export interface Category {
-  id: number;
-  name: string;
-  name_welsh?: string;
-}
+/* Response shapes. List variants are supersets of single-item ones (extra
+ * JOIN-computed fields), so aliasing to the widest form keeps existing usage
+ * compiling — see the A8 quirk in openapi.yaml. */
+export type Participant = S['Participant'];
+export type Category = S['Category'];
+export type Edition = S['Edition'];
+export type Competition = S['Competition'];
+export type Registration = S['RegistrationListItem'];
+export type Work = S['WorkListItem'];
+export type Upload = S['Upload'];
 
-export interface Edition {
-  year: number;
-  committee?: string;
-  committee_img?: string;
-  presenters?: string;
-  presenters_img?: string;
-}
+/* Request shapes — server-generated and JOIN-computed fields are absent. */
+export type ParticipantInput = S['ParticipantInput'];
+export type CategoryInput = S['CategoryInput'];
+export type EditionInput = S['EditionInput'];
+export type CompetitionInput = S['CompetitionInput'];
+export type CompetitionUpdate = S['CompetitionUpdate'];
+export type RegistrationInput = S['RegistrationInput'];
+export type WorkInput = S['WorkInput'];
+export type WorkUpdate = S['WorkUpdate'];
 
-export interface Competition {
-  id: string;
-  category_id: number;
-  category_name?: string;
-  category_name_welsh?: string;
-  description?: string;
-  language?: string;
-  year: number;
-  type: 'GRU' | 'IND';
-  extra_text?: string;
-  rank?: number;
-  preliminary?: string;
-}
+/* Vocabularies enforced by SQL CHECK constraints. */
+export type EntrantType = S['EntrantType'];
+export type Placement = S['Placement'];
+export type Language = S['Language'];
 
-export interface Registration {
-  id?: number;
-  participant_id: number;
-  name?: string;
-  surname?: string;
-  type?: string;
-  competition_id: string;
-  comp_description?: string;
-  pseudonym?: string;
-  registered_at?: string;
-  year: number;
-  dropped?: number;
-}
-
-export interface Work {
-  id?: number;
-  participant_id: number;
-  name?: string;
-  surname?: string;
-  display_name?: string;
-  placement?: '1' | '2' | '3' | 'mencion';
-  competition_id: string;
-  title: string;
-  date?: string;
-  video_url?: string;
-  photo_url?: string;
-}
+/* Auth */
+export type LoginResponse = S['LoginResponse'];
+export type ApiError = S['Error'];

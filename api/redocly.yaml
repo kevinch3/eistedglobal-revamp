@@ -8,6 +8,3 @@ rules:
   operation-4xx-response: off
   # Private repository; no license to declare.
   info-license-strict: off
-apis:
-  main:
-    root: openapi.yaml
