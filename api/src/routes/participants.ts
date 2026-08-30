@@ -99,10 +99,18 @@ router.put('/:id', (req: AuthRequest, res: Response) => {
   res.json(db.prepare('SELECT * FROM participant WHERE id = ?').get(req.params.id));
 });
 
-// DELETE /api/participants/:id  (soft-delete: sets active = 0)
+// DELETE /api/participants/:id  — soft by default (active = 0), ?hard=1 removes.
+//
+// The soft delete keeps the row forever, so generated or imported participants
+// accumulate with no way to reclaim them. ?hard=1 removes the row; foreign keys
+// from registration and work protect anything still referenced, which surfaces
+// as 409 (see mapSqliteError), so a real entrant can never be lost this way.
 router.delete('/:id', (req: AuthRequest, res: Response) => {
   const db = getDb();
-  const result = db.prepare('UPDATE participant SET active = 0 WHERE id = ?').run(req.params.id);
+  const hard = (req.query as { hard?: string }).hard === '1';
+  const result = hard
+    ? db.prepare('DELETE FROM participant WHERE id = ?').run(req.params.id)
+    : db.prepare('UPDATE participant SET active = 0 WHERE id = ?').run(req.params.id);
   if (result.changes === 0) {
     res.status(404).json({ error: 'Participant not found' });
     return;
