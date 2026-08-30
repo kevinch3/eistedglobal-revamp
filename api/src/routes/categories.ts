@@ -1,6 +1,8 @@
 import { Router, Request, Response } from 'express';
 import { getDb } from '../config/database';
 import { requireAuth } from '../middleware/auth';
+import { validateBody } from '../middleware/validate';
+import { categoryInputSchema } from '../schemas';
 
 const router = Router();
 router.use(requireAuth);
@@ -9,7 +11,7 @@ router.get('/', (_req: Request, res: Response) => {
   res.json(getDb().prepare('SELECT * FROM category ORDER BY name ASC').all());
 });
 
-router.post('/', (req: Request, res: Response) => {
+router.post('/', validateBody(categoryInputSchema), (req: Request, res: Response) => {
   const { name, name_welsh } = req.body as { name?: string; name_welsh?: string };
   if (!name) {
     res.status(400).json({ error: 'name is required' });
@@ -21,7 +23,7 @@ router.post('/', (req: Request, res: Response) => {
   res.status(201).json(getDb().prepare('SELECT * FROM category WHERE id = ?').get(result.lastInsertRowid));
 });
 
-router.put('/:id', (req: Request, res: Response) => {
+router.put('/:id', validateBody(categoryInputSchema), (req: Request, res: Response) => {
   const { name, name_welsh } = req.body as { name?: string; name_welsh?: string };
   const result = getDb()
     .prepare('UPDATE category SET name=?, name_welsh=? WHERE id=?')

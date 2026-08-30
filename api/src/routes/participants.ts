@@ -2,6 +2,8 @@ import { Router, Response } from 'express';
 import { getDb } from '../config/database';
 import { requireAuth, AuthRequest } from '../middleware/auth';
 import { Participant } from '../types';
+import { validateBody } from '../middleware/validate';
+import { participantInputSchema } from '../schemas';
 
 const router = Router();
 router.use(requireAuth);
@@ -56,7 +58,7 @@ router.get('/:id', (req: AuthRequest, res: Response) => {
 });
 
 // POST /api/participants
-router.post('/', (req: AuthRequest, res: Response) => {
+router.post('/', validateBody(participantInputSchema), (req: AuthRequest, res: Response) => {
   const db = getDb();
   const p = req.body as Participant;
 
@@ -80,7 +82,7 @@ router.post('/', (req: AuthRequest, res: Response) => {
 });
 
 // PUT /api/participants/:id
-router.put('/:id', (req: AuthRequest, res: Response) => {
+router.put('/:id', validateBody(participantInputSchema), (req: AuthRequest, res: Response) => {
   const db = getDb();
   const p = req.body as Participant;
 

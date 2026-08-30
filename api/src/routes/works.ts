@@ -2,6 +2,8 @@ import { Router, Request, Response } from 'express';
 import { getDb } from '../config/database';
 import { requireAuth } from '../middleware/auth';
 import { Work } from '../types';
+import { validateBody } from '../middleware/validate';
+import { workCreateSchema, workUpdateSchema } from '../schemas';
 
 const router = Router();
 router.use(requireAuth);
@@ -38,7 +40,7 @@ router.get('/:id', (req: Request, res: Response) => {
 });
 
 // POST /api/works
-router.post('/', (req: Request, res: Response) => {
+router.post('/', validateBody(workCreateSchema), (req: Request, res: Response) => {
   const w = req.body as Work;
   if (!w.participant_id || !w.competition_id || !w.title) {
     res.status(400).json({ error: 'participant_id, competition_id, and title are required' });
@@ -58,7 +60,7 @@ router.post('/', (req: Request, res: Response) => {
 });
 
 // PUT /api/works/:id
-router.put('/:id', (req: Request, res: Response) => {
+router.put('/:id', validateBody(workUpdateSchema), (req: Request, res: Response) => {
   const w = req.body as Work;
   const db = getDb();
   const result = db

@@ -2,6 +2,8 @@ import { Router, Request, Response } from 'express';
 import { getDb } from '../config/database';
 import { requireAuth } from '../middleware/auth';
 import { Competition } from '../types';
+import { validateBody } from '../middleware/validate';
+import { competitionCreateSchema, competitionUpdateSchema } from '../schemas';
 
 const router = Router();
 router.use(requireAuth);
@@ -47,7 +49,7 @@ router.get('/:id', (req: Request, res: Response) => {
 });
 
 // POST /api/competitions
-router.post('/', (req: Request, res: Response) => {
+router.post('/', validateBody(competitionCreateSchema), (req: Request, res: Response) => {
   const c = req.body as Competition;
   if (!c.id || !c.category_id || !c.year || !c.type) {
     res.status(400).json({ error: 'id, category_id, year, and type are required' });
@@ -65,7 +67,7 @@ router.post('/', (req: Request, res: Response) => {
 });
 
 // PUT /api/competitions/:id
-router.put('/:id', (req: Request, res: Response) => {
+router.put('/:id', validateBody(competitionUpdateSchema), (req: Request, res: Response) => {
   const c = req.body as Competition;
   const db = getDb();
   const result = db

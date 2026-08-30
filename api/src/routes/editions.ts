@@ -1,6 +1,8 @@
 import { Router, Request, Response } from 'express';
 import { getDb } from '../config/database';
 import { requireAuth } from '../middleware/auth';
+import { validateBody } from '../middleware/validate';
+import { editionCreateSchema, editionInputSchema, uploadInputSchema } from '../schemas';
 
 const router = Router();
 router.use(requireAuth);
@@ -18,7 +20,7 @@ router.get('/:id', (req: Request, res: Response) => {
   res.json(row);
 });
 
-router.post('/', (req: Request, res: Response) => {
+router.post('/', validateBody(editionCreateSchema), (req: Request, res: Response) => {
   const { year } = req.body as { year?: number };
   if (!year) {
     res.status(400).json({ error: 'year is required' });
@@ -34,7 +36,7 @@ router.post('/', (req: Request, res: Response) => {
   res.status(201).json(db.prepare('SELECT * FROM edition WHERE year = ?').get(year));
 });
 
-router.put('/:id', (req: Request, res: Response) => {
+router.put('/:id', validateBody(editionInputSchema), (req: Request, res: Response) => {
   const { committee, committee_img, presenters, presenters_img } = req.body as Record<string, string>;
   const result = getDb()
     .prepare(
@@ -54,7 +56,7 @@ router.get('/:id/uploads', (req: Request, res: Response) => {
 });
 
 // POST /api/editions/:id/uploads
-router.post('/:id/uploads', (req: Request, res: Response) => {
+router.post('/:id/uploads', validateBody(uploadInputSchema), (req: Request, res: Response) => {
   const { filename, description } = req.body as { filename?: string; description?: string };
   if (!filename) {
     res.status(400).json({ error: 'filename is required' });
